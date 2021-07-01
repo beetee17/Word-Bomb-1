@@ -9,9 +9,13 @@ import SwiftUI
 
 @main
 struct Word_BombApp: App {
+    
+    let game = CountryWordBombGame()
+
+   
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView(viewModel: game)
         }
     }
 }

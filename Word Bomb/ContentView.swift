@@ -7,6 +7,15 @@
 
 import SwiftUI
 
+#if canImport(UIKit)
+// To force SwiftUI to hide keyboard
+extension View {
+    func hideKeyboard() {
+        UIApplication.shared.sendAction(#selector(UIResponder.resignFirstResponder), to: nil, from: nil, for: nil)
+    }
+}
+#endif
+
 struct ContentView: View {
     @ObservedObject var viewModel: CountryWordBombGame
     
@@ -21,7 +30,7 @@ struct ContentView: View {
             switch viewModel.isPaused {
                 
                 case true:
-                PauseMenuView(viewModel: viewModel)
+                    PauseMenuView(viewModel: viewModel)
                     
                 case false:
                 GeometryReader { _ in
@@ -89,16 +98,17 @@ struct InputView: View {
             .padding(.horizontal, 20)
             
             let output = viewModel.output
-            if output == "CORRECT" {
-                Text("\(viewModel.output)")
+            let outputText = Text(output)
                 .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-                .foregroundColor(.green)
-            }
-            else {
-                Text("\(viewModel.output)")
-                .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-                .foregroundColor(.red)
-            }
+                .transition(AnyTransition.scale.animation(.easeInOut(duration:0.3)))
+                .id(output)
+            
+            switch output {
+                case "CORRECT":
+                     outputText.foregroundColor(.green)
+                default:
+                    outputText.foregroundColor(.red)
+                }
             
         }
         .padding(.bottom, 200)
@@ -123,6 +133,7 @@ struct modeSelectView: View {
                 modeSelectButton(mode:"WORDS", viewModel: viewModel)
             }
         }
+        .transition(.slide)
     }
 }
 
@@ -139,7 +150,7 @@ struct PauseMenuView: View {
             
             Button("RESUME")  {
                 print("RESUME!")
-                viewModel.togglePauseGame()
+                withAnimation { viewModel.togglePauseGame() }
             }
             .buttonStyle(MainButtonStyle())
             
@@ -152,11 +163,12 @@ struct PauseMenuView: View {
  
             Button("QUIT") {
                 print("QUIT!")
-                viewModel.selectMode(nil)
+                withAnimation { viewModel.selectMode(nil) }
             }
             .buttonStyle(MainButtonStyle())
             
         }
+        .transition(.scale)
     }
 }
 
@@ -176,7 +188,8 @@ struct TopBarView: View {
             
             Button("Pause") {
                 print("Pause Game")
-                viewModel.togglePauseGame()
+                hideKeyboard()
+                withAnimation { viewModel.togglePauseGame() }
             }
             .padding(.trailing, UIScreen.main.bounds.width*0.7)
             
@@ -220,7 +233,7 @@ struct modeSelectButton: View {
         
         Button("\(mode)") {
             // set game mode and proceed to start game
-            viewModel.selectMode(mode)
+            withAnimation { viewModel.selectMode(mode) }
             print("\(mode) mode!")
         }
         .buttonStyle(MainButtonStyle())
@@ -257,3 +270,5 @@ struct ContentView_Previews: PreviewProvider {
        }
     }
 }
+
+

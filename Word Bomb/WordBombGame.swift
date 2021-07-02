@@ -15,11 +15,17 @@ struct WordBombGame {
     
     var data:[String:[String]] = [:]
     var queries:[String:[String]] = [:]
-    var query: String?
+    var query: String = ""
     var usedWords = Set<Int>()
     
-    var timeLimit:Double = 10.0
-    var input = ""
+    var timeLimit:Float = 10.0
+    var timeLeft: Float?
+
+    var isGameOver:Bool = false
+    var isPaused: Bool = false
+    
+    var output: String =  ""
+  
     
     init(playerNames: [String]) {
 
@@ -31,18 +37,27 @@ struct WordBombGame {
         loadData()
     }
     
-    mutating func selectMode(_ mode:String) {
+    mutating func selectMode(_ mode:String?) {
         
         gameMode = mode
         
-        if mode == "countries" {
-            query = "NAME A COUNTRY"
+        if let mode = gameMode {
+            if mode == "countries" {
+                query = "NAME A COUNTRY"
+            }
+            
+            else if mode == "words" {
+                getRandQuery()
+            }
+            
+            isGameOver = false
         }
-        
-        else if mode == "words" {
-            getRandQuery()
+        else {
+            // User has quit the game
+            gameOver()
         }
-        
+
+        timeLeft = timeLimit
     }
     
     mutating func nextPlayer() {
@@ -52,6 +67,7 @@ struct WordBombGame {
         else {
             currentPlayer = players[currentPlayer.ID+1]
         }
+        
         print(currentPlayer.name)
     }
         
@@ -82,25 +98,25 @@ struct WordBombGame {
         
     }
     
+    
     mutating func process(_ input: String) {
         
         let searchResult = data[gameMode!]!.search(element: input)
         
         if usedWords.contains(searchResult) {
-            print("WRONG - \(input) ALREADY USED")
+            output = "\(input) ALREADY USED"
         }
         else {
             
-            if let q = query as String? {
+            if query != "NAME A COUNTRY" {
                 // if game mode involves query (eg must have syllable in word)
-                if input.contains(q) && (searchResult != -1){
+                if input.contains(query) && (searchResult != -1) {
                     print("\(input) is CORRECT")
-                    usedWords.insert(searchResult)
-                    nextPlayer()
-                    getRandQuery()
+                    isCorrect(searchResult)
+   
                 }
                 else {
-                    print("\(input) is WRONG")
+                    output = "\(input) is WRONG"
                 }
             }
                 
@@ -108,24 +124,39 @@ struct WordBombGame {
                 // Check if input is an answer
                 if (searchResult != -1) {
                     print("CORRECT")
-                    usedWords.insert(searchResult)
-                    nextPlayer()
-                    getRandQuery()
+                    isCorrect(searchResult)
+                    
                 }
                     
                 else {
-                    print("WRONG")
+                    output = "\(input) is WRONG"
                 }
             }
         }
     }
     
-    mutating func getRandQuery() {
-        if queries[gameMode!]?.count ?? -1 > 0 {
-            query = queries[gameMode!]?.randomElement()!
-        }
+    mutating func isCorrect(_ searchResult: Int) {
+        usedWords.insert(searchResult)
+        nextPlayer()
+        getRandQuery()
+        
+        // reset the time for other player
+        timeLeft = timeLimit
+        output = "CORRECT"
     }
     
+    mutating func gameOver() {
+        isGameOver.toggle()
+        isPaused = false
+        usedWords = Set<Int>()
+        currentPlayer = players[0]
+    }
+
+    mutating func getRandQuery() {
+        if queries[gameMode!]?.count ?? -1 > 0 {
+            query = (queries[gameMode!]?.randomElement()!)!
+        }
+    }
         
 }
 

@@ -116,7 +116,7 @@ struct WordBombGame {
    
                 }
                 else {
-                    output = "\(input) is WRONG"
+                    output = "\(input.capitalized) is WRONG"
                 }
             }
                 
@@ -129,7 +129,7 @@ struct WordBombGame {
                 }
                     
                 else {
-                    output = "\(input) is WRONG"
+                    output = "\(input.capitalized) is WRONG"
                 }
             }
         }

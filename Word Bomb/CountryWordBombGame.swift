@@ -9,7 +9,7 @@ import Foundation
 
 class CountryWordBombGame: ObservableObject {
     
-    @Published private(set) var model: WordBombGame = WordBombGame(playerNames: ["BT", "VAL"])
+    @Published private var model: WordBombGame = WordBombGame(playerNames: ["BT", "VAL"])
     @Published var input = ""
     
     func selectMode(_ mode:String?) {
@@ -18,7 +18,7 @@ class CountryWordBombGame: ObservableObject {
     }
     
     func processInput() {
-        model.process(input.lowercased())
+        model.process(input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines))
         input = ""
     }
     
@@ -45,35 +45,28 @@ class CountryWordBombGame: ObservableObject {
     func startTimer() {
         print("Timer started")
    
-            print("Timer started")
-            let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
+        let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 
-                if self.model.timeLeft! <= 0 {
-                    timer.invalidate()
-                    self.model.gameOver()
-                    print("Timer stopped")
-                }
-                else if self.model.isPaused || self.model.isGameOver {
-                    timer.invalidate()
-                }
-                
-                else {
-                    
-                    DispatchQueue.main.async {
-                        self.model.timeLeft! = max(0, self.model.timeLeft! - 0.1)
-//                        print(self.model.timeLeft!)
-                    }
-             
-                    
-                }
-                
+            if self.model.timeLeft! <= 0 {
+                timer.invalidate()
+                self.model.gameOver()
+                print("Timer stopped")
             }
-        
+            else if self.model.isPaused || self.model.isGameOver {
+                timer.invalidate()
+            }
+            
+            else {
+                
+                DispatchQueue.main.async {
+                    self.model.timeLeft! = max(0, self.model.timeLeft! - 0.1)
+//                        print(self.model.timeLeft!)
+                }
+            }
         }
-       
-   
-
+    }
     
+    // to allow contentView to read model's value and update
     var currentPlayer: String { model.currentPlayer.name }
         
     var gameMode: String? { model.gameMode }
@@ -88,6 +81,6 @@ class CountryWordBombGame: ObservableObject {
     
     var output: String { model.output }
         
-    }
+}
 
 

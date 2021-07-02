@@ -189,7 +189,7 @@ struct TopBarView: View {
             Button("Pause") {
                 print("Pause Game")
                 hideKeyboard()
-                withAnimation { viewModel.togglePauseGame() }
+                withAnimation(.spring(response:0.1, dampingFraction:0.6)) { viewModel.togglePauseGame() }
             }
             .padding(.trailing, UIScreen.main.bounds.width*0.7)
             

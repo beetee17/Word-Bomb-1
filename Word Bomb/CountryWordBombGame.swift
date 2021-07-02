@@ -27,6 +27,10 @@ class CountryWordBombGame: ObservableObject {
         model.modeSelect = true
     }
     
+    func presentMain() {
+        model.modeSelect = false
+    }
+    
     func togglePauseGame() {
         
         if model.isPaused {

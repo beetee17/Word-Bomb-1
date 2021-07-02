@@ -24,8 +24,14 @@ struct ModeSelectView: View {
             VStack(spacing: 100) {
                 ModeSelectButton(mode:"COUNTRIES", viewModel: viewModel)
                 ModeSelectButton(mode:"WORDS", viewModel: viewModel)
+                Button("BACK") {
+                    print("BACK")
+                    withAnimation { viewModel.presentMain() }
+                }
+                .buttonStyle(MainButtonStyle())
             }
         }
+        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
         .transition(.asymmetric(insertion: AnyTransition.move(edge: .trailing), removal: AnyTransition.move(edge: .leading)))
     }
 }

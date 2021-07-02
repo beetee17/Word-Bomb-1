@@ -22,7 +22,7 @@ struct MainView: View {
             }
             .buttonStyle(MainButtonStyle())
         }
-        .transition(.move(edge: .leading))
+        .transition(.asymmetric(insertion: AnyTransition.move(edge: .leading), removal: AnyTransition.move(edge: .trailing)))
         .zIndex(/*@START_MENU_TOKEN@*/1.0/*@END_MENU_TOKEN@*/) // transition does not work with zIndex set to 0
     }
 }

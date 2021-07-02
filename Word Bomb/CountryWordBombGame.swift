@@ -14,12 +14,17 @@ class CountryWordBombGame: ObservableObject {
     
     func selectMode(_ mode:String?) {
         model.selectMode(mode?.lowercased())
+        model.modeSelect = false
         startTimer()
     }
     
     func processInput() {
         model.process(input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines))
         input = ""
+    }
+    
+    func presentModeSelect() {
+        model.modeSelect = true
     }
     
     func togglePauseGame() {
@@ -47,14 +52,17 @@ class CountryWordBombGame: ObservableObject {
    
         let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 
-            if self.model.timeLeft! <= 0 {
+            if self.model.isPaused || self.model.isGameOver {
+                timer.invalidate()
+                print("Timer stopped")
+            }
+            
+            else if self.model.timeLeft! <= 0 {
                 timer.invalidate()
                 self.model.gameOver()
                 print("Timer stopped")
             }
-            else if self.model.isPaused || self.model.isGameOver {
-                timer.invalidate()
-            }
+            
             
             else {
                 
@@ -70,6 +78,8 @@ class CountryWordBombGame: ObservableObject {
     var currentPlayer: String { model.currentPlayer.name }
         
     var gameMode: String? { model.gameMode }
+    
+    var modeSelect: Bool { model.modeSelect }
     
     var query: String { model.query }
     

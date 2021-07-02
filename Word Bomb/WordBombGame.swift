@@ -12,6 +12,7 @@ struct WordBombGame {
     var players: [Player] = []
     var currentPlayer: Player
     var gameMode: String?
+    var modeSelect = false
     
     var data:[String:[String]] = [:]
     var queries:[String:[String]] = [:]

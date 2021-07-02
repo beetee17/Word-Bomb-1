@@ -17,6 +17,12 @@
 		6C2E20DB268DF42600CECD3F /* Player.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6C2E20DA268DF42600CECD3F /* Player.swift */; };
 		6C2E20E0268E18FF00CECD3F /* words.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6C2E20DE268E18FF00CECD3F /* words.txt */; };
 		6C2E20E1268E18FF00CECD3F /* syllables.txt in Resources */ = {isa = PBXBuildFile; fileRef = 6C2E20DF268E18FF00CECD3F /* syllables.txt */; };
+		6CB6F93F268F627300FA9654 /* GameView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CB6F93E268F627300FA9654 /* GameView.swift */; };
+		6CB6F942268F62C000FA9654 /* PauseMenuView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CB6F941268F62C000FA9654 /* PauseMenuView.swift */; };
+		6CB6F945268F62D800FA9654 /* ModeSelectView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CB6F944268F62D800FA9654 /* ModeSelectView.swift */; };
+		6CB6F948268F633600FA9654 /* Styles.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CB6F947268F633600FA9654 /* Styles.swift */; };
+		6CB6F94B268F64A300FA9654 /* LogoView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CB6F94A268F64A300FA9654 /* LogoView.swift */; };
+		6CB6F94F268F7E7D00FA9654 /* MainView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6CB6F94E268F7E7D00FA9654 /* MainView.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -32,6 +38,12 @@
 		6C2E20DA268DF42600CECD3F /* Player.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = Player.swift; path = ../../WordBomb/WordBomb/Player.swift; sourceTree = "<group>"; };
 		6C2E20DE268E18FF00CECD3F /* words.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = words.txt; path = ../../WordBomb/WordBomb/words.txt; sourceTree = "<group>"; };
 		6C2E20DF268E18FF00CECD3F /* syllables.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; name = syllables.txt; path = ../../WordBomb/WordBomb/syllables.txt; sourceTree = "<group>"; };
+		6CB6F93E268F627300FA9654 /* GameView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GameView.swift; sourceTree = "<group>"; };
+		6CB6F941268F62C000FA9654 /* PauseMenuView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PauseMenuView.swift; sourceTree = "<group>"; };
+		6CB6F944268F62D800FA9654 /* ModeSelectView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ModeSelectView.swift; sourceTree = "<group>"; };
+		6CB6F947268F633600FA9654 /* Styles.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Styles.swift; sourceTree = "<group>"; };
+		6CB6F94A268F64A300FA9654 /* LogoView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = LogoView.swift; sourceTree = "<group>"; };
+		6CB6F94E268F7E7D00FA9654 /* MainView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MainView.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -66,6 +78,12 @@
 			children = (
 				6C2E20C1268DD81600CECD3F /* Word_Bomb_App.swift */,
 				6C2E20C3268DD81600CECD3F /* ContentView.swift */,
+				6CB6F947268F633600FA9654 /* Styles.swift */,
+				6CB6F93E268F627300FA9654 /* GameView.swift */,
+				6CB6F944268F62D800FA9654 /* ModeSelectView.swift */,
+				6CB6F94A268F64A300FA9654 /* LogoView.swift */,
+				6CB6F94E268F7E7D00FA9654 /* MainView.swift */,
+				6CB6F941268F62C000FA9654 /* PauseMenuView.swift */,
 				6C2E20DF268E18FF00CECD3F /* syllables.txt */,
 				6C2E20DE268E18FF00CECD3F /* words.txt */,
 				6C2E20D1268DEFBC00CECD3F /* WordBombGame.swift */,
@@ -159,11 +177,17 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				6CB6F948268F633600FA9654 /* Styles.swift in Sources */,
 				6C2E20D2268DEFBC00CECD3F /* WordBombGame.swift in Sources */,
 				6C2E20C4268DD81600CECD3F /* ContentView.swift in Sources */,
 				6C2E20D5268DEFD700CECD3F /* CountryWordBombGame.swift in Sources */,
 				6C2E20DB268DF42600CECD3F /* Player.swift in Sources */,
+				6CB6F93F268F627300FA9654 /* GameView.swift in Sources */,
+				6CB6F94B268F64A300FA9654 /* LogoView.swift in Sources */,
+				6CB6F94F268F7E7D00FA9654 /* MainView.swift in Sources */,
 				6C2E20C2268DD81600CECD3F /* Word_Bomb_App.swift in Sources */,
+				6CB6F942268F62C000FA9654 /* PauseMenuView.swift in Sources */,
+				6CB6F945268F62D800FA9654 /* ModeSelectView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

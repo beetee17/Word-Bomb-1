@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ModeSelectView: View {
     // Presented when starting the game or when user quits a current game
-    @ObservedObject var viewModel: CountryWordBombGame
+    @ObservedObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         VStack {
@@ -22,8 +22,11 @@ struct ModeSelectView: View {
 
                 
             VStack(spacing: 100) {
-                ModeSelectButton(mode:"COUNTRIES", viewModel: viewModel)
-                ModeSelectButton(mode:"WORDS", viewModel: viewModel)
+                
+                ForEach(viewModel.gameModes) { mode in
+                    ModeSelectButton(gameMode: mode, viewModel: viewModel)
+                }
+
                 Button("BACK") {
                     print("BACK")
                     withAnimation { viewModel.presentMain() }
@@ -44,15 +47,15 @@ struct ModeSelectView: View {
 
 struct ModeSelectButton: View {
     
-    var mode: String
-    @ObservedObject var viewModel: CountryWordBombGame
+    var gameMode: GameMode
+    @ObservedObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         
-        Button("\(mode)") {
+        Button("\(gameMode.modeName)") {
             // set game mode and proceed to start game
-            withAnimation { viewModel.selectMode(mode) }
-            print("\(mode) mode!")
+            withAnimation { viewModel.selectMode(gameMode) }
+            print("\(gameMode.modeName) mode!")
         }
         .buttonStyle(MainButtonStyle())
     }
@@ -62,7 +65,8 @@ struct ModeSelectButton: View {
 struct ModeSelectView_Previews: PreviewProvider {
     
     static var previews: some View {
-        let game = CountryWordBombGame()
+        
+        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
         ModeSelectView(viewModel: game)
     }
 }

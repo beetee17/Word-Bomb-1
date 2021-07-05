@@ -18,7 +18,7 @@ extension View {
 
 
 struct ContentView: View {
-    @ObservedObject var viewModel: CountryWordBombGame
+    @ObservedObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         ZStack {
@@ -40,7 +40,7 @@ struct ContentView_Previews: PreviewProvider {
     
     static var previews: some View {
         
-    let game = CountryWordBombGame()
+    let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
     
     Group {
            ContentView(viewModel:  game).colorScheme(.light)

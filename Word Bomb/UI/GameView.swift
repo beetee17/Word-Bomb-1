@@ -8,14 +8,14 @@
 import SwiftUI
 
 struct GameView: View {
-    @ObservedObject var viewModel: CountryWordBombGame
+    @ObservedObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         
-        switch viewModel.gameMode {
+        switch viewModel.modeSelected {
         
-            case .none:
-                switch viewModel.modeSelect {
+            case false:
+                switch viewModel.modeSelectScreen {
                     case false:
                         MainView(viewModel: viewModel)
                         
@@ -23,7 +23,7 @@ struct GameView: View {
                         ModeSelectView(viewModel: viewModel)
                 }
                 
-            case .some:
+            case true:
             switch viewModel.isPaused {
                 
                 case true:
@@ -49,12 +49,14 @@ struct GameView: View {
     }
 }
 
+
+
 // MARK: - Views
 
 struct PlayerView: View {
     // Appears in game scene to display current player's name
     
-    @ObservedObject var viewModel: CountryWordBombGame
+    @ObservedObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         
@@ -75,19 +77,30 @@ struct PlayerView: View {
 struct InputView: View {
     // Presented when game is ongoing for user to see query and input an answer
     
-    @ObservedObject var viewModel: CountryWordBombGame
+    @ObservedObject var viewModel: WordBombGameViewModel
+    
     
     var body: some View {
         
+        
+        
         VStack {
-
-            Text("\(viewModel.query.uppercased())")
-                .font(.title)
-                .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+            if let instruction = viewModel.instruction {
+                Text("\(instruction.uppercased())")
+                    .font(.title)
+                    .fontWeight(.bold)
+            }
+            
+            if let query = viewModel.query {
+                Text("\(query.uppercased())")
+                    .font(.title)
+                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+            }
             
             TextField("", text: $viewModel.input, onEditingChanged: { (changed) in
                 print("Editing Input - \(changed)")
-            }) {
+                })
+            {
                 print("User Committed Input")
                 viewModel.processInput()
             }
@@ -100,13 +113,10 @@ struct InputView: View {
                 .transition(AnyTransition.scale.animation(.easeInOut(duration:0.3)))
                 .id(output)
             
-            switch output {
-                case "CORRECT":
-                     outputText.foregroundColor(.green)
-                default:
-                    outputText.foregroundColor(.red)
-                }
-            
+            switch output.contains("CORRECT") {
+                case true: outputText.foregroundColor(.green)
+                case false: outputText.foregroundColor(.red)
+            }
         }
         .padding(.bottom, 200)
     }
@@ -118,7 +128,7 @@ struct TopBarView: View {
     // Appears in game screen for user to access pause menu, restart a game
     // and see current time left
     
-    @ObservedObject var viewModel: CountryWordBombGame
+    @ObservedObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         
@@ -154,7 +164,7 @@ struct TopBarView: View {
 
 struct TimerView: View {
     
-    @ObservedObject var viewModel: CountryWordBombGame
+    @ObservedObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         
@@ -171,7 +181,7 @@ struct TimerView: View {
 struct GameView_Previews: PreviewProvider {
     
     static var previews: some View {
-        let game = CountryWordBombGame()
+        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
         GameView(viewModel: game)
     }
 }

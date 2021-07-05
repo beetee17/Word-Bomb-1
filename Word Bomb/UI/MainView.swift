@@ -9,7 +9,7 @@ import SwiftUI
 
 struct MainView: View {
     
-    @ObservedObject var viewModel: CountryWordBombGame
+    @ObservedObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         ZStack {
@@ -31,7 +31,7 @@ struct MainView: View {
 
 struct MainView_Previews: PreviewProvider {
     static var previews: some View {
-        let game = CountryWordBombGame()
+        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
         MainView(viewModel: game)
     }
 }

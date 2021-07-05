@@ -47,15 +47,46 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         
     }
     
-    func loadData(_ mode: GameMode) -> Dictionary<String, [String]>  {
+    func getWordSets(_ rawData:[String]) -> (words:[String], wordSets:[String: [String]])  {
         
-        var data = Dictionary<String, [String]>()
+        var wordSets: [String: [String]] = [:]
+        var words: [String] = []
+        
+        for wordSet in rawData {
+            // if more than one variation of the answer => wordSet will be comma separated String
+            let variations:[String] = wordSet.components(separatedBy: ", ")
+            if variations.count > 1 {
+                for i in variations.indices {
+                    words.append(variations[i])
+                    wordSets[variations[i]] = []
+                    for j in variations.indices {
+                        if i != j {
+                            // iterate through all of the other variations
+                            wordSets[variations[i]]?.append(variations[j])
+                        }
+                    }
+                }
+            }
+            else { words.append(variations[0]) }
+        
+        }
+        return (words, wordSets)
+    }
+    
+    func loadData(_ mode: GameMode) -> (data: [String: [String]], wordSets: [String: [String]])    {
+        
+        var data: [String: [String]] = [:]
+        var wordSets: [String: [String]] = [:]
+        
         do {
             let path = Bundle.main.path(forResource: "\(mode.dataFile)", ofType: "txt", inDirectory: "Data")
             print(path)
             let string = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
-
-            data["data"] = string.components(separatedBy: "\n")
+            
+            let Data = getWordSets(string.components(separatedBy: "\n"))
+            
+            data["data"] = Data.words.sorted()
+            wordSets = Data.wordSets
         }
         
         catch let error {
@@ -76,16 +107,16 @@ class WordBombGameViewModel: NSObject, ObservableObject {
             }
         }
         
-        return data
+        return (data, wordSets)
     }
     
     func selectMode(_ mode:GameMode) {
         
         model.clearUI()
-        let data = loadData(mode)
+        let (data, wordSets) = loadData(mode)
         // on modeSelect, the appropriate model should be initialised
         switch mode.gameType {
-        case .Exact: gameModel = ExactWordGameModel(data: data["data"]!)
+        case .Exact: gameModel = ExactWordGameModel(data: data["data"]!, dataDict: wordSets)
             
         case .Contains:
             gameModel = ContainsWordGameModel(data: data["data"]!, queries: data["queries"]!)

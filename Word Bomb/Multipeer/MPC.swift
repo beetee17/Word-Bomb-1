@@ -50,11 +50,6 @@ extension WordBombGameViewModel: MCSessionDelegate {
                     }
                 }
             }
-            else if let queryData = responseDict?["query"] as? String {
-                DispatchQueue.main.async {
-                    print("received query")
-                }
-            }
         }
     }
         

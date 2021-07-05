@@ -36,3 +36,13 @@ extension Array where Element: Comparable {
         return -1
     }
 }
+
+//extension JSON {
+//
+//    mutating func append(key:String,json:JSON){
+//        if var dict = self.dictionary{
+//            dict[key] = json
+//            self = JSON(dict)
+//        }
+//    }
+//}

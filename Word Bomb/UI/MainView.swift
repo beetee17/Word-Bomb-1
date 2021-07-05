@@ -16,9 +16,26 @@ struct MainView: View {
             LogoView()
                 .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height*0.7, alignment: .top)
 
-            Button("Pass & Play") {
-                print("Pass & Play")
-                withAnimation { viewModel.presentModeSelect() }
+            VStack(spacing: 30) {
+                Button("Pass & Play") {
+                    print("Pass & Play")
+                    withAnimation { viewModel.presentModeSelect() }
+                }
+                    
+                Button("Advertise") {
+                    print("Advertise")
+                    withAnimation { viewModel.advertise() }
+                }
+               
+                
+                Button("Invite") {
+                    print("Invite")
+                    withAnimation { viewModel.invite() }
+                }
+                    
+                
+                
+         
             }
             .buttonStyle(MainButtonStyle())
             

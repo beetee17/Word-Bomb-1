@@ -48,5 +48,11 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<key>NSLocalNetworkUsageDescription</key>
+	<string>Word Bomb uses local network connectivity to enable multiplayer game</string>
+	<key>NSBonjourServices</key>
+	<array>
+		<string>_word-bomb._tcp</string>
+	</array>
 </dict>
 </plist>

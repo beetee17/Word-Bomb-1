@@ -9,7 +9,7 @@
 import Foundation
 
 
-class Player {
+class Player: Codable {
     
     var score:Int = 0
     var name:String

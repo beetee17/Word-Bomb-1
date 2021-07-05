@@ -9,13 +9,12 @@ import Foundation
 
 protocol WordGameModel {
     var data:[String] { get }
-    var query: String? { get set }
-    var instruction: String? { get }
     var usedWords: Set<Int> { get set }
-    var output: String { get set }
     
-    mutating func process(_ input: String) -> Answer
-    mutating func getRandQuery()
+    
+    mutating func process(_ input: String, _ query: String?) -> Answer
+    mutating func resetUsedWords()
+    mutating func getRandQuery() -> String
 }
 
 

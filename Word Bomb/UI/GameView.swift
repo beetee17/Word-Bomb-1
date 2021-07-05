@@ -40,7 +40,7 @@ struct GameView: View {
                             PlayerView(viewModel: viewModel)
 
                             InputView(viewModel: viewModel)
-                        
+                            
                         }
                     }
                 }
@@ -98,11 +98,11 @@ struct InputView: View {
             }
             
             TextField("", text: $viewModel.input, onEditingChanged: { (changed) in
-                print("Editing Input - \(changed)")
                 })
             {
                 print("User Committed Input")
                 viewModel.processInput()
+                viewModel.resetInput()
             }
             .textFieldStyle(RoundedBorderTextFieldStyle())
             .padding(.horizontal, 20)

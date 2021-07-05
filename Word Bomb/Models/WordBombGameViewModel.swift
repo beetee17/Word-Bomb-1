@@ -6,24 +6,47 @@
 //
 
 import Foundation
+import MultipeerConnectivity
 
-class WordBombGameViewModel: ObservableObject {
+class WordBombGameViewModel: NSObject, ObservableObject {
     
     @Published private var model: WordBombGame = WordBombGame(playerNames: ["BT", "VAL"])
     @Published private var gameModel: WordGameModel?
     
     @Published var input = ""
-    @Published var modeSelectScreen: Bool = false
     
     var wordGames: [GameMode]
+    
+    // multiplayer stuff
+    var peerId: MCPeerID
+    var session: MCSession
+    var nearbyServiceAdvertiser: MCNearbyServiceAdvertiser?
+    var serviceType:String = "word-bomb"
 
     init(wordGames: [GameMode]) {
         self.wordGames = wordGames
+        peerId = MCPeerID(displayName: UIDevice.current.name)
+        session = MCSession(peer: peerId, securityIdentity: nil, encryptionPreference: .required)
+        super.init()
+        session.delegate = self
        
     }
+    func setModel(_ model: WordBombGame) {
+        self.model = model
+    }
     
-    // implement protocol WordGameModel and various structs conforming to the protocol (mainly to implement processInput function for ExactMatches and ContainsQuery)
-//    @Published private var gameModel: some WordGameModel?
+    func setPlayers(_ peers: [MCPeerID]) {
+        var players: [Player] = [Player(name: peerId.displayName, ID: 0)]
+        for i in peers.indices {
+            let player = Player(name: peers[i].displayName, ID: i+1)
+            players.append(player)
+            print(player.name)
+        }
+        
+        model.setPlayers(players)
+        
+    }
+    
     func loadData(_ mode: GameMode) -> Dictionary<String, [String]>  {
         
         var data = Dictionary<String, [String]>()
@@ -58,34 +81,78 @@ class WordBombGameViewModel: ObservableObject {
     
     func selectMode(_ mode:GameMode) {
         
+        model.clearUI()
         let data = loadData(mode)
         // on modeSelect, the appropriate model should be initialised
         switch mode.gameType {
-        case .Exact: gameModel = ExactWordGameModel(data: data["data"]!, instruction: mode.instruction)
+        case .Exact: gameModel = ExactWordGameModel(data: data["data"]!)
             
         case .Contains:
-            gameModel = ContainsWordGameModel(data: data["data"]!, queries: data["queries"]!, instruction: mode.instruction)
-            gameModel!.getRandQuery()
+            gameModel = ContainsWordGameModel(data: data["data"]!, queries: data["queries"]!)
+            if isMultiplayer(self) {
+                if deviceIsHost(self) {
+                    let query = gameModel!.getRandQuery()
+                    model.setQuery(query)
+                }
+            } else {
+                let query = gameModel!.getRandQuery()
+                model.setQuery(query)
+            }
+            
         }
         model.resetTimer()
-        modeSelectScreen = false
+        model.selectMode(mode)
         startTimer()
+        
     }
     
+
     func processInput() {
-        let answer = gameModel!.process(input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines))
-        model.process(answer)
-        input = ""
+        
+        //multiplayer
+        if isMultiplayer(self) {
+            if peerId.displayName == model.currentPlayer.name && deviceIsHost(self) {
+                input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+                let answer = gameModel!.process(input, model.query)
+                model.process(input, answer)
+                let query = gameModel!.getRandQuery()
+                model.setQuery(query)
+                
+            }
+            
+            else if peerId.displayName == model.currentPlayer.name && !deviceIsHost(self) {
+                if let inputData = try? JSONEncoder().encode(["input" : input]) {
+                    
+                    try? session.send(inputData, toPeers: session.connectedPeers, with: .reliable)
+                    print("SENT \(input)")
+                }
+            }
+        }
+        else {
+            
+            input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+            let answer = gameModel!.process(input, model.query)
+            model.process(input, answer)
+        }
+    }
     
+    func processPeerInput() {
+        input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        print("processing \(input)")
+        let answer = gameModel!.process(input, model.query)
+        if case .isCorrect = answer {
+            model.setQuery(gameModel!.getRandQuery())
+        }
+        model.process(input, answer)
+        resetInput()
     }
     
     func presentModeSelect() {
-        modeSelectScreen = true
-        print(modeSelectScreen)
+        model.presentModeSelect()
     }
     
     func presentMain() {
-        modeSelectScreen = false
+        model.selectMode(nil)
         model.isPaused = false
         gameModel = nil
     }
@@ -104,6 +171,7 @@ class WordBombGameViewModel: ObservableObject {
     }
     
     func restartGame() {
+        gameModel!.resetUsedWords()
         model.restartGame()
         startTimer()
     }
@@ -129,9 +197,35 @@ class WordBombGameViewModel: ObservableObject {
                 
                 DispatchQueue.main.async {
                     self.model.timeLeft! = max(0, self.model.timeLeft! - 0.1)
+                    if isMultiplayer(self) && deviceIsHost(self) {
+                        self.sendModel()
+                    }
                 }
             }
         }
+    }
+    
+    func resetInput() {
+        input = ""
+    }
+    
+    func sendModel() {
+        if let modelData = try? JSONEncoder().encode(model) {
+            
+            try? session.send(modelData, toPeers: session.connectedPeers, with: .reliable)
+            
+        }
+    }
+    func advertise() {
+        nearbyServiceAdvertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: nil, serviceType: serviceType)
+        nearbyServiceAdvertiser?.delegate = self
+        nearbyServiceAdvertiser?.startAdvertisingPeer()
+    }
+    
+    func invite() {
+        let browser = MCBrowserViewController(serviceType: serviceType, session: session)
+        browser.delegate = self
+        UIApplication.shared.windows.first?.rootViewController?.present(browser, animated: true)
     }
     
     // to allow contentView to read model's value and update
@@ -141,11 +235,13 @@ class WordBombGameViewModel: ObservableObject {
     
     var gameModes: [GameMode] { self.wordGames }
     
-    var modeSelected: Bool { (gameModel != nil) ? true : false }
+    var modeSelectScreen: Bool { model.modeSelectScreen }
     
-    var instruction: String? { gameModel?.instruction }
+    var modeSelected: Bool { (model.gameMode != nil) ? true : false }
     
-    var query: String? { gameModel?.query }
+    var instruction: String? { model.instruction }
+    
+    var query: String? { model.query }
     
     var timeLeft: Float { model.timeLeft! }
     
@@ -153,7 +249,7 @@ class WordBombGameViewModel: ObservableObject {
     
     var isPaused: Bool { model.isPaused }
     
-    var output: String { gameModel!.output }
+    var output: String { model.output }
         
 }
 

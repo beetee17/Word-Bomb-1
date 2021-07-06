@@ -9,20 +9,15 @@ import SwiftUI
 
 
 struct ModeSelectView: View {
-    // Presented when starting the game or when user quits a current game
+
     @ObservedObject var viewModel: WordBombGameViewModel
     
     var body: some View {
-        VStack {
-
-            Text("Select Mode")
-                .fontWeight(.bold)
-                .font(.largeTitle)
-                .padding(.bottom, 100)
-
+        ZStack {
+            Color.clear
+            SelectModeText()
                 
-            VStack(spacing: 100) {
-                
+            VStack(spacing: 50) {
                 ForEach(viewModel.gameModes) { mode in
                     ModeSelectButton(gameMode: mode, viewModel: viewModel)
                 }
@@ -32,19 +27,26 @@ struct ModeSelectView: View {
                     withAnimation { viewModel.presentMain() }
                 }
                 .buttonStyle(MainButtonStyle())
-                
             }
-            
         }
-        .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height, alignment: /*@START_MENU_TOKEN@*/.center/*@END_MENU_TOKEN@*/)
         .transition(.asymmetric(insertion: AnyTransition.move(edge: .trailing), removal: AnyTransition.move(edge: .leading)))
         .animation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0))
-        
     }
 }
 
 
-
+struct SelectModeText: View {
+    
+    var body: some View {
+        VStack {
+            Text("Select Mode")
+                .fontWeight(.bold)
+                .font(.largeTitle)
+            Spacer()
+        }
+        .padding(.top, 100)
+    }
+}
 struct ModeSelectButton: View {
     
     var gameMode: GameMode

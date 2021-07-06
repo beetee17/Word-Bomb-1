@@ -13,10 +13,11 @@ struct MainView: View {
     
     var body: some View {
         ZStack {
+            Color.clear
+            
             LogoView()
-                .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.height*0.7, alignment: .top)
 
-            VStack(spacing: 30) {
+            VStack(spacing: 50) {
                 Button("Pass & Play") {
                     print("Pass & Play")
                     withAnimation { viewModel.presentModeSelect() }
@@ -33,9 +34,6 @@ struct MainView: View {
                     withAnimation { viewModel.invite() }
                 }
                     
-                
-                
-         
             }
             .buttonStyle(MainButtonStyle())
             

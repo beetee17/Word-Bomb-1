@@ -11,20 +11,24 @@ import MultipeerConnectivity
 extension WordBombGameViewModel: MCSessionDelegate {
     
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
+        var status = ""
         switch state {
         case .connecting:
-            print("\(peerId) state: connecting")
+            status = ("\(peerId.displayName): connecting")
         case .connected:
-            print("\(peerId) state: connected")
+            status = ("\(peerId.displayName): connected to HOST")
+            
             if deviceIsHost(self) {
-                print("\(peerId.displayName) IS HOST")
+                status = ("\(peerId.displayName) is HOST")
                 setPlayers(session.connectedPeers)
             }
-            
         case .notConnected:
-            print("\(peerId) state: not connected")
+            status = ("\(peerId.displayName): not connected")
         default:
-            print("\(peerId) state: unknown")
+            status = ("\(peerId.displayName): unknown")
+        }
+        DispatchQueue.main.async {
+            self.mpcStatus = status
         }
     }
     
@@ -38,7 +42,7 @@ extension WordBombGameViewModel: MCSessionDelegate {
             }
         }
         else {
-            let responseDict = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as! [String:Any]
+            let responseDict = try? JSONSerialization.jsonObject(with: data, options: .allowFragments) as? [String:Any]
             if let inputData = responseDict?["input"] as? String {
                 DispatchQueue.main.async {
                     print("received input")

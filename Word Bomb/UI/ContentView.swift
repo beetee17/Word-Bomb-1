@@ -22,14 +22,39 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-                    Color.white.ignoresSafeArea(.all)
-                    GameView(viewModel: viewModel)
+            if viewModel.mpcStatus != nil  {
+                MPCText(viewModel: viewModel)
+            }
+            GameView(viewModel: viewModel)
         }
     }
 }
 
 
 
+struct MPCText: View {
+    @ObservedObject var viewModel: WordBombGameViewModel
+    
+    var body: some View {
+        VStack {
+            
+            let mpcStatusText = Text(viewModel.mpcStatus!)
+                .font(.caption)
+
+            switch viewModel.mpcStatus!.contains("HOST")  {
+                case true: mpcStatusText.foregroundColor(.green)
+                case false: mpcStatusText.foregroundColor(.red)
+                
+            }
+            
+            Spacer()
+
+        }
+        .padding(.top, 40)
+        .ignoresSafeArea(.all)
+    }
+    
+}
 
 
 

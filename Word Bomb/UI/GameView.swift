@@ -30,20 +30,16 @@ struct GameView: View {
                     PauseMenuView(viewModel: viewModel)
                     
                 case false:
-                GeometryReader { _ in
-                    
-                    ZStack {
-                        TopBarView(viewModel: viewModel)
-                        
-                        VStack(spacing:100) {
-                            
-                            PlayerView(viewModel: viewModel)
+                    ZStack{
+                        Color.clear
+                        TopBarView(viewModel:  viewModel)
 
-                            InputView(viewModel: viewModel)
-                            
-                        }
+                        InputView(viewModel: viewModel)
+                        PlayerView(viewModel: viewModel)
+                        OutputText(viewModel: viewModel)
+
                     }
-                }
+                    .ignoresSafeArea(.all)
             }
         }
     }
@@ -60,69 +56,60 @@ struct PlayerView: View {
     
     var body: some View {
         
-        if viewModel.isGameOver {
-         
-            Text("\(viewModel.currentPlayer) Loses!")
-                .font(/*@START_MENU_TOKEN@*/.largeTitle/*@END_MENU_TOKEN@*/)
+        VStack {
+            Spacer()
+            
+            if viewModel.isGameOver {
+             
+                Text("\(viewModel.currentPlayer) Loses!")
+                    .font(/*@START_MENU_TOKEN@*/.largeTitle/*@END_MENU_TOKEN@*/)
+            }
+            else {
+                Text("\(viewModel.currentPlayer)'s Turn!")
+                    .font(.largeTitle)
+            }
+            Spacer()
         }
-        else {
-            Text("\(viewModel.currentPlayer)'s Turn!")
-                .font(.largeTitle)
-        }
+        .padding(.bottom, 500)
     }
 }
 
 
 
 struct InputView: View {
+    
     // Presented when game is ongoing for user to see query and input an answer
     
     @ObservedObject var viewModel: WordBombGameViewModel
     
-    
+    var instructionText: some View {
+        viewModel.instruction.map { Text($0).boldText() }
+    }
+    var queryText: some View {
+        viewModel.query.map { Text($0).boldText() }
+    }
+
     var body: some View {
-        
-        
-        
+
         VStack {
-            if let instruction = viewModel.instruction {
-                Text("\(instruction.uppercased())")
-                    .font(.title)
-                    .fontWeight(.bold)
-            }
             
-            if let query = viewModel.query {
-                Text("\(query.uppercased())")
-                    .font(.title)
-                    .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-            }
+            instructionText
+            queryText
             
-            TextField("", text: $viewModel.input, onEditingChanged: { (changed) in
-                })
-            {
-                print("User Committed Input")
-                viewModel.processInput()
-                viewModel.resetInput()
-            }
-            .textFieldStyle(RoundedBorderTextFieldStyle())
-            .padding(.horizontal, 20)
+            TextField("", text: $viewModel.input, onEditingChanged: { (changed) in })
+                {
+                    print("User Committed Input")
+                    viewModel.processInput()
+                    viewModel.resetInput()
+                }
+                .textFieldStyle(RoundedBorderTextFieldStyle())
+                .padding(.horizontal, 20)
             
-            let output = viewModel.output
-            let outputText = Text(output)
-                .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-                .transition(AnyTransition.scale.animation(.easeInOut(duration:0.3)))
-                .id(output)
-            
-            switch output.contains("CORRECT") {
-                case true: outputText.foregroundColor(.green)
-                case false: outputText.foregroundColor(.red)
-            }
         }
-        .padding(.bottom, 200)
+        .padding(.bottom, 50)
+        .ignoresSafeArea(.all)
     }
 }
-
-
 
 struct TopBarView: View {
     // Appears in game screen for user to access pause menu, restart a game
@@ -130,31 +117,36 @@ struct TopBarView: View {
     
     @ObservedObject var viewModel: WordBombGameViewModel
     
-    var body: some View {
-        
-
-        ZStack {
-            
-            TimerView(viewModel: viewModel)
-            
-            Button("Pause") {
-                print("Pause Game")
-                hideKeyboard()
-                withAnimation(.spring(response:0.1, dampingFraction:0.6)) { viewModel.togglePauseGame() }
-            }
-            .padding(.trailing, UIScreen.main.bounds.width*0.7)
-            
-            if viewModel.isGameOver {
-                Button("Restart") {
-                    print("Restart Game")
-                    viewModel.restartGame()
-                }.padding(.leading, UIScreen.main.bounds.width*0.7)
-            }
-            
+    var gameOverButton: some View {
+        Button("Restart") {
+            print("Restart Game")
+            viewModel.restartGame()
         }
-        .frame(width:UIScreen.main.bounds.width,
-               height:UIScreen.main.bounds.height*0.8, alignment:.top)
-        
+    }
+    
+    var body: some View {
+
+        VStack{
+            HStack {
+                Button("Pause") {
+                    print("Pause Game")
+                    hideKeyboard()
+                    withAnimation(.spring(response:0.1, dampingFraction:0.6)) { viewModel.togglePauseGame() }
+                }
+                
+                Spacer()
+                
+                TimerView(viewModel: viewModel)
+                
+                Spacer()
+  
+                if viewModel.isGameOver { gameOverButton.opacity(1) }
+                else { gameOverButton.opacity(0) }
+            }
+            Spacer()
+        }
+        .padding(.top, 50)
+        .padding(.horizontal, 20)
     }
 }
 
@@ -175,6 +167,27 @@ struct TimerView: View {
     }
 }
 
+
+struct OutputText: View {
+    @ObservedObject var viewModel: WordBombGameViewModel
+    
+    var body: some View {
+        
+        let output = viewModel.output
+        VStack {
+            let outputText = Text(output)
+                .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+                .transition(AnyTransition.scale.animation(.easeInOut(duration:0.3)))
+                .id(output)
+        
+            switch output.contains("CORRECT") {
+                case true: outputText.foregroundColor(.green)
+                case false: outputText.foregroundColor(.red)
+            }
+        }
+        .padding(.top, 60)
+    }
+}
 
 
 

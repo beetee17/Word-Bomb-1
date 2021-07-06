@@ -12,7 +12,9 @@ struct LogoView: View {
         VStack(spacing: -20) {
             Image("Word")
             Image("Bomb")
+            Spacer()
         }
+        .padding(.top, 100)
     }
 }
 

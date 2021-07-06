@@ -14,6 +14,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
     @Published private var gameModel: WordGameModel?
     
     @Published var input = ""
+    @Published var mpcStatus: String?
     
     var wordGames: [GameMode]
     
@@ -35,17 +36,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         self.model = model
     }
     
-    func setPlayers(_ peers: [MCPeerID]) {
-        var players: [Player] = [Player(name: peerId.displayName, ID: 0)]
-        for i in peers.indices {
-            let player = Player(name: peers[i].displayName, ID: i+1)
-            players.append(player)
-            print(player.name)
-        }
-        
-        model.setPlayers(players)
-        
-    }
+    
     
     func getWordSets(_ rawData:[String]) -> (words:[String], wordSets:[String: [String]])  {
         
@@ -67,8 +58,6 @@ class WordBombGameViewModel: NSObject, ObservableObject {
                     }
                 }
             }
-            else { words.append(variations[0]) }
-        
         }
         return (words, wordSets)
     }
@@ -80,7 +69,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         
         do {
             let path = Bundle.main.path(forResource: "\(mode.dataFile)", ofType: "txt", inDirectory: "Data")
-            print(path)
+            print(path ?? "no path found")
             let string = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
             
             let Data = getWordSets(string.components(separatedBy: "\n"))
@@ -140,42 +129,34 @@ class WordBombGameViewModel: NSObject, ObservableObject {
 
     func processInput() {
         
-        //multiplayer
-        if isMultiplayer(self) {
-            if peerId.displayName == model.currentPlayer.name && deviceIsHost(self) {
-                input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-                let answer = gameModel!.process(input, model.query)
-                model.process(input, answer)
-                let query = gameModel!.getRandQuery()
-                model.setQuery(query)
-                
-            }
+        input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        
+        if !(input == "" || model.isGameOver) {
             
-            else if peerId.displayName == model.currentPlayer.name && !deviceIsHost(self) {
-                if let inputData = try? JSONEncoder().encode(["input" : input]) {
+            if isMultiplayer(self) {
+                if peerId.displayName == model.currentPlayer.name && deviceIsHost(self) {
                     
-                    try? session.send(inputData, toPeers: session.connectedPeers, with: .reliable)
-                    print("SENT \(input)")
+                    let answer = gameModel!.process(input, model.query)
+                    model.process(input, answer)
+                    let query = gameModel!.getRandQuery()
+                    model.setQuery(query)
+                    
+                }
+                
+                else if peerId.displayName == model.currentPlayer.name && !deviceIsHost(self) {
+                    if let inputData = try? JSONEncoder().encode(["input" : input]) {
+                        
+                        try? session.send(inputData, toPeers: session.connectedPeers, with: .reliable)
+                        print("SENT \(input)")
+                    }
                 }
             }
+            else {
+                
+                let answer = gameModel!.process(input, model.query)
+                model.process(input, answer)
+            }
         }
-        else {
-            
-            input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-            let answer = gameModel!.process(input, model.query)
-            model.process(input, answer)
-        }
-    }
-    
-    func processPeerInput() {
-        input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-        print("processing \(input)")
-        let answer = gameModel!.process(input, model.query)
-        if case .isCorrect = answer {
-            model.setQuery(gameModel!.getRandQuery())
-        }
-        model.process(input, answer)
-        resetInput()
     }
     
     func presentModeSelect() {
@@ -240,6 +221,29 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         input = ""
     }
     
+    // MARK: - Multipeer Functions
+    func processPeerInput() {
+        input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+        print("processing \(input)")
+        let answer = gameModel!.process(input, model.query)
+        if case .isCorrect = answer {
+            model.setQuery(gameModel!.getRandQuery())
+        }
+        model.process(input, answer)
+        resetInput()
+    }
+    
+    func setPlayers(_ peers: [MCPeerID]) {
+        var players: [Player] = [Player(name: peerId.displayName, ID: 0)]
+        for i in peers.indices {
+            let player = Player(name: peers[i].displayName, ID: i+1)
+            players.append(player)
+            print(player.name)
+        }
+        
+        model.setPlayers(players)
+        
+    }
     func sendModel() {
         if let modelData = try? JSONEncoder().encode(model) {
             

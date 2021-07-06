@@ -24,32 +24,25 @@ struct GameView: View {
                 }
                 
             case true:
-            switch viewModel.isPaused {
-                
-                case true:
-                    PauseMenuView(viewModel: viewModel)
-                    
-                case false:
-                    ZStack{
-                        Color.clear
-                        TopBarView(viewModel:  viewModel)
+                switch viewModel.isPaused {
+                    case true:
+                        PauseMenuView(viewModel: viewModel)
+                        
+                    case false:
+                        ZStack{
+                            Color.clear
+                            TopBarView(viewModel:  viewModel)
 
-                        InputView(viewModel: viewModel)
-                        PlayerView(viewModel: viewModel)
-                        OutputText(viewModel: viewModel)
+                            InputView(viewModel: viewModel)
+                            PlayerView(viewModel: viewModel)
+                            OutputText(viewModel: viewModel)
 
-                    }
-                    .ignoresSafeArea(.all)
-            }
+                        }
+                        .ignoresSafeArea(.all)
+                }
         }
     }
 }
-
-
-
-// MARK: - Buttons/Single Objects
-
-
 
 
 struct GameView_Previews: PreviewProvider {

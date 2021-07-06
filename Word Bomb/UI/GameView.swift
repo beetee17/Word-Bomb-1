@@ -170,17 +170,20 @@ struct TimerView: View {
 
 struct OutputText: View {
     @ObservedObject var viewModel: WordBombGameViewModel
-    
     var body: some View {
-        
-        let output = viewModel.output
+
         VStack {
+            let output = viewModel.output
             let outputText = Text(output)
                 .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
                 .transition(AnyTransition.scale.animation(.easeInOut(duration:0.3)))
                 .id(output)
+                .onAppear(perform: {
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 1,
+                                                          execute: { viewModel.clearOutput(output) })
+                })
         
-            switch output.contains("CORRECT") {
+            switch viewModel.output.contains("CORRECT") {
                 case true: outputText.foregroundColor(.green)
                 case false: outputText.foregroundColor(.red)
             }

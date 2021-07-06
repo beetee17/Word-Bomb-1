@@ -60,6 +60,7 @@ struct WordBombGame: Codable {
     }
     
     mutating func resetTimer() { timeLeft = timeLimit }
+    mutating func clearOutput() { output =  "" }
     
     mutating func nextPlayer() {
         let nextPlayerID = (currentPlayer.ID + 1) % players.count

@@ -32,11 +32,6 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         session.delegate = self
        
     }
-    func setModel(_ model: WordBombGame) {
-        self.model = model
-    }
-    
-    
     
     func getWordSets(_ rawData:[String]) -> (words:[String], wordSets:[String: [String]])  {
         
@@ -221,7 +216,11 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         input = ""
     }
     
+    // check if output is still the same as current to avoid clearing of new outputs 
+    func clearOutput(_ output: String) { if output == model.output { model.clearOutput() } }
+    
     // MARK: - Multipeer Functions
+    
     func processPeerInput() {
         input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         print("processing \(input)")
@@ -244,6 +243,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         model.setPlayers(players)
         
     }
+    
     func sendModel() {
         if let modelData = try? JSONEncoder().encode(model) {
             
@@ -251,6 +251,11 @@ class WordBombGameViewModel: NSObject, ObservableObject {
             
         }
     }
+    
+    func setModel(_ model: WordBombGame) {
+        self.model = model
+    }
+    
     func advertise() {
         nearbyServiceAdvertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: nil, serviceType: serviceType)
         nearbyServiceAdvertiser?.delegate = self

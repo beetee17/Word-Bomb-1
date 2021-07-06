@@ -23,6 +23,9 @@ class WordBombGameViewModel: NSObject, ObservableObject {
     var session: MCSession
     var nearbyServiceAdvertiser: MCNearbyServiceAdvertiser?
     var serviceType:String = "word-bomb"
+    @Published var showMultiplayerScreen = false
+    @Published var advertising = false
+    @Published var showHostingAlert = false
 
     init(wordGames: [GameMode]) {
         self.wordGames = wordGames
@@ -52,7 +55,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
                         }
                     }
                 }
-            }
+            } else { words.append(variations[0]) }
         }
         return (words, wordSets)
     }
@@ -84,6 +87,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
                 let string = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
 
                 data["queries"] = string.components(separatedBy: "\n")
+                data["queries"]?.removeLast()
             }
             
             catch let error {
@@ -133,9 +137,9 @@ class WordBombGameViewModel: NSObject, ObservableObject {
                     
                     let answer = gameModel!.process(input, model.query)
                     model.process(input, answer)
-                    let query = gameModel!.getRandQuery()
-                    model.setQuery(query)
-                    
+                    if .isCorrect == answer {
+                        model.setQuery(gameModel!.getRandQuery())
+                    }
                 }
                 
                 else if peerId.displayName == model.currentPlayer.name && !deviceIsHost(self) {
@@ -149,6 +153,9 @@ class WordBombGameViewModel: NSObject, ObservableObject {
             else {
                 
                 let answer = gameModel!.process(input, model.query)
+                if .isCorrect == answer {
+                    model.setQuery(gameModel!.getRandQuery())
+                }
                 model.process(input, answer)
             }
         }
@@ -260,12 +267,17 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         nearbyServiceAdvertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: nil, serviceType: serviceType)
         nearbyServiceAdvertiser?.delegate = self
         nearbyServiceAdvertiser?.startAdvertisingPeer()
+        advertising = true
     }
     
     func invite() {
         let browser = MCBrowserViewController(serviceType: serviceType, session: session)
         browser.delegate = self
         UIApplication.shared.windows.first?.rootViewController?.present(browser, animated: true)
+    }
+    
+    func disconnect() {
+        session.disconnect()
     }
     
     // to allow contentView to read model's value and update

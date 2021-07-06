@@ -12,7 +12,7 @@ struct MainButtonStyle: ButtonStyle {
     let height = UIScreen.main.bounds.height*0.07
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
-            .font(Font.title.bold())
+            .font(Font.title2.bold())
             .frame(width: width, height: height)
             .foregroundColor(Color.black)
             .contentShape(RoundedRectangle(cornerRadius: 20))

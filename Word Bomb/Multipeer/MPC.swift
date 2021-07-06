@@ -12,15 +12,38 @@ extension WordBombGameViewModel: MCSessionDelegate {
     
     func session(_ session: MCSession, peer peerID: MCPeerID, didChange state: MCSessionState) {
         var status = ""
+        
         switch state {
         case .connecting:
+            
+            DispatchQueue.main.async {
+                self.advertising = false
+            }
+            
             status = ("\(peerId.displayName): connecting")
+            
         case .connected:
             status = ("\(peerId.displayName): connected to HOST")
             
             if deviceIsHost(self) {
                 status = ("\(peerId.displayName) is HOST")
                 setPlayers(session.connectedPeers)
+                
+                DispatchQueue.main.async {
+                    self.showHostingAlert = true
+
+                    let alert = UIAlertController(title: "You are the host!",
+                                                  message: "Connected devices will see your game!",
+                                                  preferredStyle: UIAlertController.Style.alert)
+                    
+                    alert.addAction(UIAlertAction(title: "OK",
+                                                  style:UIAlertAction.Style.default,
+                                                  handler: nil))
+                    
+                    UIApplication.shared.windows.first?.rootViewController?.presentedViewController?.present(alert,
+                                 animated: true,
+                                 completion: { self.showHostingAlert = false })
+                }
             }
         case .notConnected:
             status = ("\(peerId.displayName): not connected")
@@ -94,6 +117,12 @@ extension WordBombGameViewModel: MCBrowserViewControllerDelegate {
 func isMultiplayer(_ viewModel: WordBombGameViewModel) -> Bool {
     return viewModel.session.connectedPeers.count > 0
 }
+
 func deviceIsHost(_ viewModel: WordBombGameViewModel) -> Bool {
-    return viewModel.nearbyServiceAdvertiser == nil
+    for peer in viewModel.session.connectedPeers {
+        if peer.displayName < viewModel.peerId.displayName {
+            return false
+        }
+    }
+    return true
 }

@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ContainsWordGameModel: WordGameModel {
+struct ContainsWordGameModel: WordGameModel, Codable {
     var data: [String]
     var queries: [String]
     var usedWords = Set<Int>()

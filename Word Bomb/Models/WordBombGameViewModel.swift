@@ -40,68 +40,6 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         model.viewToShow = view
     }
     
-    func getWordSets(_ rawData:[String]) -> (words:[String], wordSets:[String: [String]])  {
-        
-        var wordSets: [String: [String]] = [:]
-        var words: [String] = []
-        
-        for wordSet in rawData {
-            // if more than one variation of the answer => wordSet will be comma separated String
-            let variations:[String] = wordSet.components(separatedBy: ", ")
-            if variations.count > 1 {
-                for i in variations.indices {
-                    words.append(variations[i])
-                    wordSets[variations[i]] = []
-                    for j in variations.indices {
-                        if i != j {
-                            // iterate through all of the other variations
-                            wordSets[variations[i]]?.append(variations[j])
-                        }
-                    }
-                }
-            } else { words.append(variations[0]) }
-        }
-        return (words, wordSets)
-    }
-    
-    func loadData(_ mode: GameMode) -> (data: [String: [String]], wordSets: [String: [String]])    {
-        
-        var data: [String: [String]] = [:]
-        var wordSets: [String: [String]] = [:]
-        
-        do {
-            let path = Bundle.main.path(forResource: "\(mode.dataFile)", ofType: "txt", inDirectory: "Data")
-            print(path ?? "no path found")
-            let string = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
-            
-            let Data = getWordSets(string.components(separatedBy: "\n"))
-            
-            data["data"] = Data.words.sorted()
-            wordSets = Data.wordSets
-        }
-        
-        catch let error {
-            Swift.print("Fatal Error: \(error.localizedDescription)")
-        }
-        
-        if let queryFile = mode.queryFile {
-            
-            do {
-                let path = Bundle.main.path(forResource: queryFile, ofType: "txt", inDirectory: "Data")
-                let string = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
-
-                data["queries"] = string.components(separatedBy: "\n")
-                data["queries"]?.removeLast()
-            }
-            
-            catch let error {
-                Swift.print("Fatal Error: \(error.localizedDescription)")
-            }
-        }
-        
-        return (data, wordSets)
-    }
-    
     func selectMode(_ mode:GameMode) {
         
         model.clearUI()
@@ -189,8 +127,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
                 self.changeViewToShow(.gameOver)
                 print("Timer stopped")
             }
-            
-            
+        
             else {
                 
                 DispatchQueue.main.async {
@@ -202,7 +139,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
             }
         }
     }
-    
+
     func resetInput() {
         input = ""
     }
@@ -210,7 +147,8 @@ class WordBombGameViewModel: NSObject, ObservableObject {
     // check if output is still the same as current to avoid clearing of new outputs 
     func clearOutput(_ output: String) { if output == model.output { model.clearOutput() } }
     
-    // MARK: - Multipeer Functions
+    
+    // MARK: - Multipeer Functionality
     
     func processPeerInput() {
         input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
@@ -262,6 +200,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
     
     func disconnect() {
         session.disconnect()
+        mpcStatus = nil
     }
     
     // to allow contentView to read model's value and update

@@ -7,7 +7,7 @@
 
 import Foundation
 
-protocol WordGameModel {
+protocol WordGameModel: Codable {
     var data:[String] { get }
     var usedWords: Set<Int> { get set }
     

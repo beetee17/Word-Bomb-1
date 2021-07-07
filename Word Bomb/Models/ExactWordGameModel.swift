@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct ExactWordGameModel: WordGameModel {
+struct ExactWordGameModel: WordGameModel, Codable {
     var data: [String]
     var dataDict: [String : [String]]
     var usedWords = Set<Int>()

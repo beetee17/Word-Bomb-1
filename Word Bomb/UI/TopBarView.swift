@@ -12,7 +12,7 @@ struct TopBarView: View {
     // Appears in game screen for user to access pause menu, restart a game
     // and see current time left
     
-    @ObservedObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var viewModel: WordBombGameViewModel
     
     var gameOverButton: some View {
         Button("Restart") {
@@ -28,7 +28,7 @@ struct TopBarView: View {
                 Button("Pause") {
                     print("Pause Game")
                     hideKeyboard()
-                    withAnimation(.spring(response:0.1, dampingFraction:0.6)) { viewModel.togglePauseGame() }
+                    withAnimation(.spring(response:0.1, dampingFraction:0.6)) { viewModel.changeViewToShow(.pauseMenu) }
                 }
                 
                 Spacer()
@@ -37,7 +37,7 @@ struct TopBarView: View {
                 
                 Spacer()
   
-                if viewModel.isGameOver { gameOverButton.opacity(1) }
+                if .gameOver == viewModel.viewToShow { gameOverButton.opacity(1) }
                 else { gameOverButton.opacity(0) }
             }
             Spacer()
@@ -67,7 +67,6 @@ struct TimerView: View {
 
 struct TopBarView_Previews: PreviewProvider {
     static var previews: some View {
-        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
-        TopBarView(viewModel: game)
+        TopBarView()
     }
 }

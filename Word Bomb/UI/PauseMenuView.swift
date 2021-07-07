@@ -11,7 +11,7 @@ import SwiftUI
 struct PauseMenuView: View {
     // Preented when game is paused
     
-    @ObservedObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         
@@ -20,7 +20,10 @@ struct PauseMenuView: View {
             
             Button("RESUME")  {
                 print("RESUME!")
-                withAnimation { viewModel.togglePauseGame() }
+                withAnimation {
+                    viewModel.changeViewToShow(.game)
+                    viewModel.startTimer()
+                }
             }
             .buttonStyle(MainButtonStyle())
             
@@ -33,7 +36,7 @@ struct PauseMenuView: View {
  
             Button("QUIT") {
                 print("QUIT!")
-                withAnimation { viewModel.presentMain() }
+                withAnimation { viewModel.changeViewToShow(.main) }
             }
             .buttonStyle(MainButtonStyle())
             
@@ -45,7 +48,6 @@ struct PauseMenuView: View {
 struct PauseMenuView_Previews: PreviewProvider {
     
     static var previews: some View {
-        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
-        PauseMenuView(viewModel: game)
+        PauseMenuView()
     }
 }

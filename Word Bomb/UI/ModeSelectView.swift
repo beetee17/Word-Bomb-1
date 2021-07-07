@@ -10,7 +10,7 @@ import SwiftUI
 
 struct ModeSelectView: View {
 
-    @ObservedObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         ZStack {
@@ -19,18 +19,19 @@ struct ModeSelectView: View {
                 
             VStack(spacing: 50) {
                 ForEach(viewModel.gameModes) { mode in
-                    ModeSelectButton(gameMode: mode, viewModel: viewModel)
+                    ModeSelectButton(gameMode: mode)
                 }
 
                 Button("BACK") {
                     print("BACK")
-                    withAnimation { viewModel.presentMain() }
+                    withAnimation { viewModel.changeViewToShow(.main) }
                 }
                 .buttonStyle(MainButtonStyle())
             }
         }
         .transition(.asymmetric(insertion: AnyTransition.move(edge: .trailing), removal: AnyTransition.move(edge: .leading)))
         .animation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0))
+        .environmentObject(viewModel)
     }
 }
 
@@ -50,7 +51,7 @@ struct SelectModeText: View {
 struct ModeSelectButton: View {
     
     var gameMode: GameMode
-    @ObservedObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         
@@ -67,8 +68,6 @@ struct ModeSelectButton: View {
 struct ModeSelectView_Previews: PreviewProvider {
     
     static var previews: some View {
-        
-        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
-        ModeSelectView(viewModel: game)
+        ModeSelectView()
     }
 }

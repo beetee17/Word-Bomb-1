@@ -12,7 +12,7 @@ struct InputView: View {
     
     // Presented when game is ongoing for user to see query and input an answer
     
-    @ObservedObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var viewModel: WordBombGameViewModel
     
     var instructionText: some View {
         viewModel.instruction.map { Text($0).boldText() }
@@ -46,7 +46,6 @@ struct InputView: View {
 
 struct InputView_Previews: PreviewProvider {
     static var previews: some View {
-        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
-        InputView(viewModel: game)
+        InputView()
     }
 }

@@ -6,49 +6,37 @@
 //
 
 import SwiftUI
-
 struct GameView: View {
-    @ObservedObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         
-        switch viewModel.modeSelected {
+        switch viewModel.viewToShow {
         
-            case false:
-                switch viewModel.modeSelectScreen {
-                    case false:
-                        MainView(viewModel: viewModel)
-                        
-                    case true:
-                        ModeSelectView(viewModel: viewModel)
-                }
-                
-            case true:
-                switch viewModel.isPaused {
-                    case true:
-                        PauseMenuView(viewModel: viewModel)
-                        
-                    case false:
-                        ZStack{
-                            Color.clear
-                            TopBarView(viewModel:  viewModel)
+            case .main: MainView()
+            case .modeSelect: ModeSelectView()
+            case .pauseMenu: PauseMenuView()
+            case .multipeer: LocalMultiplayerView()
+            default: // game or gameOver 
+                ZStack{
+                    Color.clear
+                    TopBarView()
 
-                            InputView(viewModel: viewModel)
-                            PlayerView(viewModel: viewModel)
-                            OutputText(viewModel: viewModel)
+                    InputView()
+                    PlayerView()
+                    OutputText()
 
-                        }
-                        .ignoresSafeArea(.all)
                 }
+                .ignoresSafeArea(.all)
+            }
+        
         }
     }
-}
 
 
 struct GameView_Previews: PreviewProvider {
     
     static var previews: some View {
-        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
-        GameView(viewModel: game)
+        GameView()
     }
 }

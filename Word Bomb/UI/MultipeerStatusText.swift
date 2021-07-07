@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct MPCText: View {
-    @ObservedObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         VStack {
@@ -48,7 +48,6 @@ struct MPCText: View {
 
 struct MultipeerStatusText_Previews: PreviewProvider {
     static var previews: some View {
-        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
-        MPCText(viewModel: game)
+        MPCText()
     }
 }

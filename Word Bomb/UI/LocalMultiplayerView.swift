@@ -9,7 +9,7 @@ import SwiftUI
 
 struct LocalMultiplayerView: View {
     
-    @ObservedObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         ZStack {
@@ -34,7 +34,7 @@ struct LocalMultiplayerView: View {
                 
                 Button("Back") {
                     print("Back")
-                    withAnimation { viewModel.showMultiplayerScreen = false }
+                    withAnimation { viewModel.changeViewToShow(.main) }
                 }
                     
             }
@@ -49,7 +49,6 @@ struct LocalMultiplayerView: View {
 
 struct LocalMultiplayerView_Previews: PreviewProvider {
     static var previews: some View {
-        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
-        LocalMultiplayerView(viewModel: game)
+        LocalMultiplayerView()
     }
 }

@@ -8,13 +8,14 @@
 import SwiftUI
 
 struct OutputText: View {
-    @ObservedObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var viewModel: WordBombGameViewModel
     var body: some View {
 
         VStack {
             let output = viewModel.output
             let outputText = Text(output)
                 .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
+                .textCase(.uppercase)
                 .transition(AnyTransition.scale.animation(.easeInOut(duration:0.3)))
                 .id(output)
                 .onAppear(perform: {
@@ -33,7 +34,6 @@ struct OutputText: View {
 
 struct OutputText_Previews: PreviewProvider {
     static var previews: some View {
-        let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
-        OutputText(viewModel: game)
+        OutputText()
     }
 }

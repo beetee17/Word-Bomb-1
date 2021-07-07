@@ -18,13 +18,14 @@ extension View {
 
 
 struct ContentView: View {
-    @ObservedObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var viewModel: WordBombGameViewModel
     
     var body: some View {
         ZStack {
-            MPCText(viewModel: viewModel)
+            MPCText()
             
-            GameView(viewModel: viewModel)
+            GameView()
+            
         }
     }
 }
@@ -40,11 +41,10 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     
     static var previews: some View {
-        
-    let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
+
     
     Group {
-           ContentView(viewModel:  game).colorScheme(.light)
+           ContentView().colorScheme(.light)
 //               ContentView(viewModel: game).colorScheme(.dark)
        }
     }

@@ -23,7 +23,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
     var session: MCSession
     var nearbyServiceAdvertiser: MCNearbyServiceAdvertiser?
     var serviceType:String = "word-bomb"
-    @Published var showMultiplayerScreen = false
+
     @Published var advertising = false
     @Published var showHostingAlert = false
 
@@ -34,6 +34,10 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         super.init()
         session.delegate = self
        
+    }
+    
+    func changeViewToShow(_ view: ViewToShow) {
+        model.viewToShow = view
     }
     
     func getWordSets(_ rawData:[String]) -> (words:[String], wordSets:[String: [String]])  {
@@ -110,17 +114,18 @@ class WordBombGameViewModel: NSObject, ObservableObject {
             gameModel = ContainsWordGameModel(data: data["data"]!, queries: data["queries"]!)
             if isMultiplayer(self) {
                 if deviceIsHost(self) {
-                    let query = gameModel!.getRandQuery()
-                    model.setQuery(query)
+                    model.query = gameModel!.getRandQuery()
                 }
             } else {
-                let query = gameModel!.getRandQuery()
-                model.setQuery(query)
+                model.query = gameModel!.getRandQuery()
             }
             
         }
+        
+        changeViewToShow(.game)
+        model.instruction = mode.instruction
+        
         model.resetTimer()
-        model.selectMode(mode)
         startTimer()
         
     }
@@ -130,7 +135,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         
         input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
-        if !(input == "" || model.isGameOver) {
+        if !(input == "" || model.timeLeft! <= 0) {
             
             if isMultiplayer(self) {
                 if peerId.displayName == model.currentPlayer.name && deviceIsHost(self) {
@@ -138,7 +143,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
                     let answer = gameModel!.process(input, model.query)
                     model.process(input, answer)
                     if .isCorrect == answer {
-                        model.setQuery(gameModel!.getRandQuery())
+                        model.query = gameModel!.getRandQuery()
                     }
                 }
                 
@@ -154,39 +159,18 @@ class WordBombGameViewModel: NSObject, ObservableObject {
                 
                 let answer = gameModel!.process(input, model.query)
                 if .isCorrect == answer {
-                    model.setQuery(gameModel!.getRandQuery())
+                    model.query = gameModel!.getRandQuery()
                 }
                 model.process(input, answer)
             }
         }
     }
     
-    func presentModeSelect() {
-        model.presentModeSelect()
-    }
-    
-    func presentMain() {
-        model.selectMode(nil)
-        model.isPaused = false
-        gameModel = nil
-    }
-    
-    func togglePauseGame() {
-        
-        if model.isPaused {
-            // resuming game
-            model.isPaused.toggle()
-            startTimer()
-        }
-        else {
-            model.isPaused.toggle()
-        }
-        
-    }
     
     func restartGame() {
         gameModel!.resetUsedWords()
         model.restartGame()
+        changeViewToShow(.game)
         startTimer()
     }
     
@@ -195,14 +179,14 @@ class WordBombGameViewModel: NSObject, ObservableObject {
    
         let timer = Timer.scheduledTimer(withTimeInterval: 0.1, repeats: true) { (timer) in
 
-            if self.model.isPaused || self.model.isGameOver {
+            if .game != self.viewToShow {
                 timer.invalidate()
                 print("Timer stopped")
             }
             
             else if self.model.timeLeft! <= 0 {
                 timer.invalidate()
-                self.model.gameOver()
+                self.changeViewToShow(.gameOver)
                 print("Timer stopped")
             }
             
@@ -233,7 +217,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         print("processing \(input)")
         let answer = gameModel!.process(input, model.query)
         if case .isCorrect = answer {
-            model.setQuery(gameModel!.getRandQuery())
+            model.query = gameModel!.getRandQuery()
         }
         model.process(input, answer)
         resetInput()
@@ -282,14 +266,8 @@ class WordBombGameViewModel: NSObject, ObservableObject {
     
     // to allow contentView to read model's value and update
     var currentPlayer: String { model.currentPlayer.name }
-        
-    var gameMode: String? { model.gameMode }
     
     var gameModes: [GameMode] { self.wordGames }
-    
-    var modeSelectScreen: Bool { model.modeSelectScreen }
-    
-    var modeSelected: Bool { (model.gameMode != nil) ? true : false }
     
     var instruction: String? { model.instruction }
     
@@ -297,9 +275,7 @@ class WordBombGameViewModel: NSObject, ObservableObject {
     
     var timeLeft: Float { model.timeLeft! }
     
-    var isGameOver: Bool { model.isGameOver }
-    
-    var isPaused: Bool { model.isPaused }
+    var viewToShow: ViewToShow { model.viewToShow }
     
     var output: String { model.output }
         

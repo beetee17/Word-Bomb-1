@@ -13,14 +13,11 @@ struct WordBombGame: Codable {
     
     var players: [Player] = []
     var currentPlayer: Player
-    var gameMode: String?
-    var modeSelectScreen: Bool = false
     
     var timeLimit:Float = 10.0
     var timeLeft: Float?
-
-    var isGameOver:Bool = false
-    var isPaused: Bool = false
+    
+    var viewToShow = ViewToShow.main
     
     var output = ""
     var query: String?
@@ -32,7 +29,6 @@ struct WordBombGame: Codable {
             players.append(Player(name: playerNames[index], ID: index))
         }
         currentPlayer = players[0]
-        
     }
     
     mutating func setPlayers(_ players: [Player]) {
@@ -45,19 +41,16 @@ struct WordBombGame: Codable {
         // reset the time for other player iff answer from prev player was correct
         switch answer {
             case .isCorrect:
-                output = "\(input.uppercased()) IS CORRECT"
+                output = "\(input) IS CORRECT"
                 nextPlayer()
                 resetTimer()
             case .isWrong:
-                output = "\(input.uppercased()) IS WRONG"
+                output = "\(input) IS WRONG"
             case .isAlreadyUsed:
-                output = "ALREADY USED \(input.uppercased())"
+                output = "ALREADY USED \(input)"
         }
     }
     
-    mutating func setQuery(_ query: String) {
-        self.query = query
-    }
     
     mutating func resetTimer() { timeLeft = timeLimit }
     mutating func clearOutput() { output =  "" }
@@ -69,43 +62,18 @@ struct WordBombGame: Codable {
         print(currentPlayer.name)
     }
         
-    mutating func gameOver() {
-        isGameOver.toggle()
-        isPaused = false
-    }
     
     mutating func restartGame() {
-        isGameOver = false
-        isPaused = false
         timeLeft = 10
         currentPlayer = players[0]
     }
     
-    mutating func selectMode(_ mode: GameMode?) {
-        
-        if let Mode = mode {
-            gameMode = Mode.modeName
-            instruction = Mode.instruction
-            
-        }
-        else {
-            gameMode = nil
-        }
-        modeSelectScreen = false
-    }
-    
+
     mutating func clearUI() {
         output = ""
         query = ""
         instruction = ""
     }
-    
-    mutating func presentModeSelect() {
-        modeSelectScreen = true
-    }
-
-
-        
 }
 
 

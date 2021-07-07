@@ -25,3 +25,7 @@ enum GameType {
 enum Answer  {
     case isCorrect, isWrong, isAlreadyUsed
 }
+
+enum ViewToShow: Int, Codable {
+    case main, modeSelect, game, gameOver, pauseMenu, multipeer
+}

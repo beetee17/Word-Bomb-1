@@ -23,7 +23,7 @@ struct Word_BombApp: App {
 
     var body: some Scene {
         WindowGroup {
-            ContentView(viewModel: game)
+            ContentView().environmentObject(game)
         }
     }
 }

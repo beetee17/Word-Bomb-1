@@ -22,16 +22,13 @@ struct ContentView: View {
     
     var body: some View {
         ZStack {
-            MPCText()
+            MPCText().environmentObject(viewModel)
             
-            GameView()
+            GameView().environmentObject(viewModel)
             
         }
     }
 }
-
-
-
 
 
 

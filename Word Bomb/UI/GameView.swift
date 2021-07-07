@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import CoreData
+
 struct GameView: View {
     @EnvironmentObject var viewModel: WordBombGameViewModel
-    
+
     var body: some View {
         
         switch viewModel.viewToShow {
@@ -17,7 +19,8 @@ struct GameView: View {
             case .modeSelect: ModeSelectView()
             case .pauseMenu: PauseMenuView()
             case .multipeer: LocalMultiplayerView()
-            case . customMode: CustomModeView()
+            case .customMode: CustomModeView()
+                
             default: // game or gameOver 
                 ZStack{
                     Color.clear
@@ -32,6 +35,7 @@ struct GameView: View {
             }
         
         }
+    
     }
 
 

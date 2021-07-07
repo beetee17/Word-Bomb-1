@@ -27,7 +27,7 @@ enum Answer  {
 }
 
 enum ViewToShow: Int, Codable {
-    case main, modeSelect, customMode, game, gameOver, pauseMenu, multipeer
+    case main, modeSelect, customMode, createMode, game, gameOver, pauseMenu, multipeer
 }
 
 
@@ -93,4 +93,17 @@ func loadData(_ mode: GameMode) -> (data: [String: [String]], wordSets: [String:
     }
     
     return (data, wordSets)
+}
+
+// for custom modes using core data
+func encodeStrings(_ data: [String]) -> String {
+    if let JSON = try? JSONEncoder().encode(data) {
+        return String(data: JSON, encoding: .utf8)!
+    } else { return "" }
+}
+
+func decodeJSONStringtoArray(_ json: String) -> [String] {
+    if let data = try? JSONDecoder().decode([String].self, from: Data(json.utf8)) {
+        return data.sorted()
+    } else { return [] }
 }

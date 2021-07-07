@@ -18,12 +18,14 @@ struct Word_BombApp: App {
     // however an array of [WordGame] should be loaded (for display of modes)
     // implement GameData struct, it includes String vars for words txt filename, query txt filename, user instruction (if any)
     
-    
+    let persistenceController = PersistenceController.shared
     let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
 
     var body: some Scene {
         WindowGroup {
-            ContentView().environmentObject(game)
+            ContentView()
+                .environmentObject(game)
+                .environment(\.managedObjectContext, persistenceController.container.viewContext)
         }
     }
 }

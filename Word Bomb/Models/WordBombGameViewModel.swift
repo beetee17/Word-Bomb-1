@@ -35,11 +35,27 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         session.delegate = self
        
     }
-    
+
     func changeViewToShow(_ view: ViewToShow) {
         model.viewToShow = view
     }
     
+    func selectCustomMode(_ item: Item) {
+        model.clearUI()
+        
+        let data = decodeJSONStringtoArray(item.data!)
+        model.instruction = item.instruction
+      
+        if item.gameType! == "EXACT" {
+            gameModel = (ExactWordGameModel(data: data, dataDict: [:]))
+            print(gameModel)
+        }
+        
+        changeViewToShow(.game)
+        model.resetTimer()
+        startTimer()
+        
+    }
     func selectMode(_ mode:GameMode) {
         
         model.clearUI()

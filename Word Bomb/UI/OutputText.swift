@@ -6,6 +6,8 @@
 //
 
 import SwiftUI
+import AVFoundation
+
 
 struct OutputText: View {
     @EnvironmentObject var viewModel: WordBombGameViewModel
@@ -24,12 +26,30 @@ struct OutputText: View {
                 })
         
             switch viewModel.output.contains("CORRECT") {
-                case true: outputText.foregroundColor(.green)
-                case false: outputText.foregroundColor(.red)
+            case true:
+                outputText
+                    .foregroundColor(.green)
+                    .onAppear(perform: { playSound(sound: "Correct", type: "wav") })
+                
+            case false: outputText.foregroundColor(.red)
             }
         }
         .padding(.top, 60)
     }
+    
+    @State var audioPlayer: AVAudioPlayer?
+
+    func playSound(sound: String, type: String) {
+        if let path = Bundle.main.path(forResource: sound, ofType: type) {
+            do {
+                audioPlayer = try AVAudioPlayer(contentsOf: URL(fileURLWithPath: path))
+                audioPlayer?.play()
+            } catch {
+                print("ERROR")
+            }
+        }
+    }
+    
 }
 
 struct OutputText_Previews: PreviewProvider {

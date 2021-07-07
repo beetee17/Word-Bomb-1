@@ -30,6 +30,7 @@ struct MainView: View {
                     }
                         
                 }
+                .padding(.top, 75)
                 .buttonStyle(MainButtonStyle())
                 
             }

@@ -17,6 +17,7 @@ struct GameView: View {
             case .modeSelect: ModeSelectView()
             case .pauseMenu: PauseMenuView()
             case .multipeer: LocalMultiplayerView()
+            case . customMode: CustomModeView()
             default: // game or gameOver 
                 ZStack{
                     Color.clear

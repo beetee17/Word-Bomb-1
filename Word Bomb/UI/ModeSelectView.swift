@@ -21,6 +21,12 @@ struct ModeSelectView: View {
                 ForEach(viewModel.gameModes) { mode in
                     ModeSelectButton(gameMode: mode)
                 }
+                
+                Button("Custom...") {
+                    print("Custom")
+                    withAnimation { viewModel.changeViewToShow(.customMode) }
+                }
+                .buttonStyle(MainButtonStyle())
 
                 Button("BACK") {
                     print("BACK")

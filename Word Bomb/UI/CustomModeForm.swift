@@ -10,16 +10,17 @@ import SwiftUI
 struct CustomModeForm: View {
     @Environment(\.managedObjectContext) private var viewContext
     @EnvironmentObject var viewModel: WordBombGameViewModel
-    @State private var selectedGameMode = "EXACT"
+    @State private var gameType = "EXACT"
     @State private var modeName = ""
     @State private var words = ""
+    @State private var queries = ""
     @State private var instruction = ""
     
     
     var body: some View {
         Form {
             Section(header: Text("Game Mode")) {
-                Picker("Select a color", selection: $selectedGameMode) {
+                Picker("Select a color", selection: $gameType) {
                     ForEach(["EXACT", "CONTAINS"], id: \.self) {
                         Text($0)
                     }
@@ -32,32 +33,50 @@ struct CustomModeForm: View {
             Section(header: Text("Instruction")) {
                 TextField("Enter user instruction here", text: $instruction)
             }
-
+            
+            
             Section(header: Text("Words")) {
                 
                 ZStack {
                     TextEditor(text: $words)
                 }
             }
+            
+            if gameType == "CONTAINS" {
+                Section(header: Text("Queries")) {
+                    
+                    ZStack {
+                        TextEditor(text: $queries)
+                    }
+                }
+            }
+            
 
             Button("Save changes") {
-                let newItem = Item(context: viewContext)
-                newItem.name = modeName
-                let data = words.components(separatedBy: "\n")
-                newItem.data = encodeStrings(data.map {
-                    $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
-               })
-                print(newItem.data)
-                newItem.gameType = "EXACT"
-                newItem.instruction = instruction
-                addItem(newItem)
+                addItem(modeName: modeName, words: words, queries: queries, instruction: instruction, gameType: gameType)
             }
         }
     }
     
-    private func addItem(_ item: Item) {
+    private func addItem(modeName: String, words: String, queries: String, instruction: String, gameType: String) {
         withAnimation {
             do {
+                let newItem = Item(context: viewContext)
+                newItem.name = modeName
+                let wordsData = words.components(separatedBy: "\n")
+                newItem.words = encodeStrings(wordsData.map {
+                    $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+               })
+                print(newItem.words)
+                newItem.gameType = gameType
+                
+                let queryData = queries.components(separatedBy: "\n")
+                newItem.queries = encodeStrings(queryData.map {
+                    $0.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
+               })
+                
+                newItem.instruction = instruction
+                
                 try viewContext.save()
             } catch {
                 // Replace this implementation with code to handle the error appropriately.

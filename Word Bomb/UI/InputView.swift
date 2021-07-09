@@ -33,14 +33,11 @@ struct InputView: View {
                 viewModel.processInput()
                 viewModel.resetInput()
             }})
-            .frame(width: UIScreen.main.bounds.width-40, height: 30, alignment: .center)
-            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.gray, lineWidth: 0.75))
-//            .border(Color.gray, width: 0.5)
-            
-            
+            .font(Font.system(size: 20))
+            .frame(width: .infinity, height: .infinity, alignment: .center)
 
         }
-        .padding(.bottom, 50)
+        .padding(.bottom, 150)
         .ignoresSafeArea(.all)
     }
 }

@@ -38,6 +38,6 @@ struct ExactWordGameModel: WordGameModel, Codable {
     mutating func resetUsedWords() {
         usedWords = Set<Int>()
     }
-    mutating func getRandQuery() -> String { return "" }
+    mutating func getRandQuery(_ input: String) -> String { return "" }
 
 }

@@ -14,54 +14,84 @@ struct MPCText: View {
     
     var body: some View {
         VStack {
-
-            let mpcStatusText = Text(viewModel.mpcStatus ?? "")
-                    
-
-            if viewModel.mpcStatus != nil {
-                switch viewModel.mpcStatus!.lowercased().contains("host")  || viewModel.mpcStatus!.lowercased().contains("to") {
-                    case true: mpcStatusText.foregroundColor(.green)
-                    case false: mpcStatusText.foregroundColor(.red)
-
-                }
+            
+            let mpcStatusText = Text(viewModel.mpcStatus)
+            
+            let text = viewModel.mpcStatus.lowercased()
+            switch text.contains("connected to") || text.contains("are host") {
+            case true:
+                mpcStatusText.foregroundColor(.green)
+                
+            case false:
+                mpcStatusText.foregroundColor(.red)
+                
             }
             
-    
-            
+        
             Spacer()
 
         }
         .font(.caption)
         .padding(.top, 40)
         .ignoresSafeArea(.all)
+        .environmentObject(mpcDataSource)
         .onChange(of: mpcDataSource.availablePeers,
                   perform: {
-                         peer in
-                         DispatchQueue.main.async {
-                             viewModel.setPlayers()
-                             if viewModel.deviceIsHost() {
-                                 viewModel.showHostingAlert = true
-                                 viewModel.mpcStatus = "You are hosting"
-                             }
-                             else if viewModel.isMultiplayer() {
-                                 viewModel.mpcStatus = "Connnected to \(mpcDataSource.availablePeers[0].name)"
-                             }
-                             else { viewModel.mpcStatus = "" }
-                                                                 }
-                                                             })
-        .alert(isPresented: $viewModel.showHostingAlert,
-               content: { Alert(title: Text("You are the host!"),
-                                message: Text("Connected devices can see your game!"),
-                                dismissButton: .default(Text("OK"))
-                                    {
-                                        print("dismissed")
-                                        viewModel.showHostingAlert  = false
-                                    })
-                    })
-        .environmentObject(mpcDataSource)
+                    _ in
+                    DispatchQueue.main.async {
+                        handlePeersChanged(viewModel, mpcDataSource)
+                    }
+                  })
+        .onChange(of: viewModel.selectedPeers, perform: { _ in
+            if viewModel.selectedPeers.count > 0 {
+                
+                viewModel.mpcStatus = "You are host"
+            }
+            
+            
+        })
+    
+    }
+}
+
+func handlePeersChanged(_ viewModel: WordBombGameViewModel, _ mpcDataSource: MultipeerDataSource) {
+    // non-host device lost connection to host
+    if let hostPeer = viewModel.hostingPeer, !mpcDataSource.availablePeers.contains(hostPeer) {
+        viewModel.mpcStatus = "Lost connection to host"
+        viewModel.hostingPeer = nil
+        viewModel.resetPlayers()
     }
     
+    else if viewModel.selectedPeers.count > 0 {
+        // host device lost connection to all participants
+        if mpcDataSource.availablePeers.count == 0 {
+            viewModel.mpcStatus = "Lost connection to all participants"
+            for peer in viewModel.selectedPeers { viewModel.toggle(peer) }
+            viewModel.resetPlayers()
+        }
+        
+        else {
+            // host may have lost connection to some/all players (still >1 player in the game) -> update players in the game
+            viewModel.mpcStatus = "Lost connection to some participants"
+            for peer in viewModel.selectedPeers {
+                if !mpcDataSource.availablePeers.contains(peer) {
+                    //remove the peer
+                    
+                    viewModel.toggle(peer)
+                }
+            }
+            if viewModel.selectedPeers.count == 0 {
+                viewModel.mpcStatus = "Lost connection to all participants"
+                viewModel.resetPlayers()
+                
+            }
+            
+            // reset players in game
+            else { viewModel.setPlayers() }
+        }
+    }
 }
+
 
 
 struct MultipeerStatusText_Previews: PreviewProvider {
@@ -69,3 +99,4 @@ struct MultipeerStatusText_Previews: PreviewProvider {
         MPCText()
     }
 }
+

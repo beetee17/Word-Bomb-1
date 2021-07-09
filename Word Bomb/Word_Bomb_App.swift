@@ -9,11 +9,11 @@ import SwiftUI
 import MultipeerKit
 import MultipeerConnectivity
 
-let CountryGame = GameMode(modeName:"COUNTRY", dataFile: "countries", queryFile: nil, instruction: "NAME A COUNTRY", gameType: GameType.Exact, id: 1)
+let CountryGame = GameMode(modeName:"COUNTRY", dataFile: "countries", queryFile: nil, instruction: "NAME A COUNTRY", words: nil, queries: nil, gameType: GameType.Exact, id: 1)
 
-let WordGame = GameMode(modeName: "WORDS", dataFile: "words", queryFile: "syllables", instruction: nil, gameType: GameType.Contains, id: 2)
+let WordGame = GameMode(modeName: "WORDS", dataFile: "words", queryFile: "syllables", instruction: nil, words: nil, queries: nil, gameType: GameType.Contains, id: 2)
 
-
+let defaultPlayers = [Player(name: "BT", ID: 0), Player(name: "VAL", ID: 1)]
 
 @main
 struct Word_BombApp: App {
@@ -24,6 +24,7 @@ struct Word_BombApp: App {
     
     let persistenceController = PersistenceController.shared
     let game = WordBombGameViewModel([CountryGame, WordGame])
+    
     
     let mpcDataSource = MultipeerDataSource(transceiver: Multipeer.transceiver)
     

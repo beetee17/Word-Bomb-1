@@ -8,17 +8,22 @@
 import Foundation
 import MultipeerConnectivity
 
-struct GameMode: Identifiable {
+struct GameMode: Identifiable, Codable {
     var modeName: String
-    var dataFile: String
+    var dataFile: String?
     var queryFile: String?
     var instruction: String?
+    
+    // for custom modes
+    var words: [String]?
+    var queries: [String]?
+    
     var gameType: GameType
     var id: Int
     
 }
 
-enum GameType {
+enum GameType: Int, Codable {
     case Exact
     case Contains
 }
@@ -64,7 +69,8 @@ func loadData(_ mode: GameMode) -> (data: [String: [String]], wordSets: [String:
     var wordSets: [String: [String]] = [:]
     
     do {
-        let path = Bundle.main.path(forResource: "\(mode.dataFile)", ofType: "txt", inDirectory: "Data")
+        print("loading \(mode.dataFile)")
+        let path = Bundle.main.path(forResource: mode.dataFile, ofType: "txt", inDirectory: "Data")
         print(path ?? "no path found")
         let string = try String(contentsOfFile: path!, encoding: String.Encoding.utf8)
         
@@ -94,25 +100,6 @@ func loadData(_ mode: GameMode) -> (data: [String: [String]], wordSets: [String:
     }
     
     return (data, wordSets)
-}
-
-func modifyHostPeerId(_ peerId: MCPeerID ) -> MCPeerID {
-    if peerId.displayName.first != "$" {
-         return MCPeerID(displayName: "$" + peerId.displayName)
-    }
-    else { return peerId }
-}
-
-
-func displayHostPeerId(_ peerId: MCPeerID) -> String {
-    if peerId.displayName.first != "$" {
-        return peerId.displayName
-    }
-    else {
-        var displayName = peerId.displayName
-        displayName.removeFirst()
-        return displayName
-    }
 }
 
 // for custom modes using core data

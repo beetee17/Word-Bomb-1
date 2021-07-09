@@ -14,7 +14,7 @@ protocol WordGameModel: Codable {
     
     mutating func process(_ input: String, _ query: String?) -> Answer
     mutating func resetUsedWords()
-    mutating func getRandQuery() -> String
+    mutating func getRandQuery(_ input: String) -> String
 }
 
 

@@ -30,6 +30,10 @@ struct GameView: View {
                     InputView()
                     PlayerView()
                     OutputText()
+                    // for debugging
+                    Button("disconnect") {
+                        Multipeer.transceiver.stop()
+                    }
 
                 }
                 .ignoresSafeArea(.all)

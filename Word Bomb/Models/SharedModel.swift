@@ -18,7 +18,7 @@ struct WordBombGame: Codable {
     var timeLeft: Float?
     
     var viewToShow = ViewToShow.main
-    
+    var mode: GameMode?
     var output = ""
     var query: String?
     var instruction: String?

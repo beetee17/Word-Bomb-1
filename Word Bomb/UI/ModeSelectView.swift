@@ -18,7 +18,7 @@ struct ModeSelectView: View {
             SelectModeText()
                 
             VStack(spacing: 50) {
-                ForEach(viewModel.gameModes) { mode in
+                ForEach(viewModel.wordGames) { mode in
                     ModeSelectButton(gameMode: mode)
                 }
                 

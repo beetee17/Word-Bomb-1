@@ -13,28 +13,27 @@ struct OutputText: View {
     @EnvironmentObject var viewModel: WordBombGameViewModel
     var body: some View {
 
-        VStack {
-            let output = viewModel.output
-            let outputText = Text(output)
-                .fontWeight(/*@START_MENU_TOKEN@*/.bold/*@END_MENU_TOKEN@*/)
-                .textCase(.uppercase)
-                .transition(AnyTransition.scale.animation(.easeInOut(duration:0.3)))
-                .id(output)
-                .onAppear(perform: {
-                            DispatchQueue.main.asyncAfter(deadline: .now() + 1,
-                                                          execute: { viewModel.clearOutput(output) })
-                })
-        
-            switch viewModel.output.contains("CORRECT") {
-            case true:
-                outputText
-                    .foregroundColor(.green)
-                    .onAppear(perform: { playSound(sound: "Correct", type: "wav") })
-                
-            case false: outputText.foregroundColor(.red)
-            }
+
+        let output = viewModel.output
+        let outputText = Text(output)
+            .padding(.bottom, 60)
+            .font(.system(size: 20, weight: .bold, design: .default))
+            .textCase(.uppercase)
+            .transition(AnyTransition.scale.animation(.easeInOut(duration:0.3)))
+            .id(output)
+            .onAppear(perform: {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1,
+                                                      execute: { viewModel.clearOutput(output) })
+            })
+    
+        switch viewModel.output.contains("CORRECT") {
+        case true:
+            outputText
+                .foregroundColor(.green)
+                .onAppear(perform: { playSound(sound: "Correct", type: "wav") })
+            
+        case false: outputText.foregroundColor(.red)
         }
-        .padding(.top, 70)
     }
     
     @State var audioPlayer: AVAudioPlayer?

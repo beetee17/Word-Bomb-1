@@ -8,9 +8,17 @@
 import SwiftUI
 import MultipeerKit
 
+enum ActiveAlert {
+    case host, notConnected
+}
+
 struct LocalPeersView: View {
     @EnvironmentObject var viewModel: WordBombGameViewModel
     @EnvironmentObject var mpcDataSource: MultipeerDataSource
+    
+    @State var showAlert = false
+    @State var activeAlert: ActiveAlert = .notConnected
+    
     var body: some View {
         VStack {
             
@@ -27,29 +35,63 @@ struct LocalPeersView: View {
                             Text(peer.name)
 
                             Spacer()
+                            if self.viewModel.selectedPeers.contains(peer) { Image(systemName: "checkmark") }
 
                         }
                         .onTapGesture {
-                            // connects to the peer
-                            DispatchQueue.main.async {
-                                Multipeer.transceiver.invite(peer, with: nil, timeout: 5, completion: {_ in print(Multipeer.transceiver.availablePeers)})
+                            // selects peer
+                            if peer.isConnected {
+                                viewModel.toggle(peer)
                             }
-                            
+                            else {
+                                activeAlert = .notConnected
+                                showAlert = true
+                            }
+
                         }
                     }
                 }
                 
             }
         }
-        .alert(isPresented: $viewModel.showHostingAlert,
-               content: { Alert(title: Text("You are the host!"),
-                                message: Text("Connected devices can see your game!"),
-                                dismissButton: .default(Text("OK"))
-                                    {
-                                        print("dismissed")
-                                        viewModel.showHostingAlert  = false
-                                    })
-                    })
+        .onChange(of: viewModel.selectedPeers,
+                  perform: {
+                         peer in
+                         DispatchQueue.main.async {
+                             
+                            if viewModel.selectedPeers.count > 0 {
+                                viewModel.setPlayers()
+                                activeAlert = .host
+                                showAlert = true
+                                
+                             }
+                         }
+                  })
+        // TODO: - Change to show only once when selecting multiple peers
+        .alert(isPresented: $showAlert,
+               content: {
+                
+                switch activeAlert {
+                case .host:
+                    return Alert(title: Text("You are the host!"),
+                                    message: Text("Connected devices can see your game!"),
+                                    dismissButton: .default(Text("OK"))
+                                        {
+                                            print("dismissed")
+                                            showAlert = false
+                                        })
+                case .notConnected:
+                    return Alert(title: Text("Unable to Connect"),
+                                     message: Text("You may only select connected peers!"),
+                                     dismissButton: .default(Text("OK"))
+                                         {
+                                             print("dismissed")
+                                             showAlert = false
+                                         })
+                
+                }
+               })
+
         .environmentObject(mpcDataSource)
     }
 }

@@ -34,7 +34,7 @@ struct OutputText: View {
             case false: outputText.foregroundColor(.red)
             }
         }
-        .padding(.top, 780)
+        .padding(.top, 70)
     }
     
     @State var audioPlayer: AVAudioPlayer?

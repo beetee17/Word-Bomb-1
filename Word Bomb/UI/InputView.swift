@@ -35,6 +35,10 @@ struct InputView: View {
             }})
             .frame(width: UIScreen.main.bounds.width-40, height: 30, alignment: .center)
             .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.gray, lineWidth: 0.75))
+//            .border(Color.gray, width: 0.5)
+            
+            
+
         }
         .padding(.bottom, 50)
         .ignoresSafeArea(.all)

@@ -21,36 +21,46 @@ struct CustomModeView: View {
     @State var creatingMode = false
 
     var body: some View {
+        Color.clear
         VStack(spacing: 50) {
             
             ForEach(items) {
                 item in Button(item.name ?? "UNNAMED") {
                     viewModel.selectCustomMode(item)
                 }
-                .onLongPressGesture(minimumDuration: 1, pressing: { inProgress in
-                    print("In progress: \(inProgress)!")
-                }) {
-                    print("Long pressed!")
-                    viewContext.delete(item)
+                .buttonStyle(MainButtonStyle())
+                .contextMenu {
+                    Button(action: {
+                            // to avoid glitchy animation
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 0.7, execute: { viewContext.delete(item) })
+                        
+                    }) {
+                        HStack {
+                            Text("Delete \"\(item.name ?? "UNAMED" )\"")
+                            Image(systemName: "trash.fill")
+                        }
+                    }
                 }
                 
             }
-            Button("Create New") {
+            Button("CREATE NEW") {
                 print("Create New Mode")
                 withAnimation { creatingMode = true }
             }
+            .buttonStyle(MainButtonStyle())
             .sheet(isPresented: $creatingMode, onDismiss: {}) { CustomModeForm() }
 
             Button("BACK") {
                 print("BACK")
                 withAnimation { viewModel.changeViewToShow(.modeSelect) }
             }
+            .buttonStyle(MainButtonStyle())
 
         }
         .frame(width: UIScreen.main.bounds.width, height: UIScreen.main.bounds.width, alignment: .center)
         .transition(.move(edge: .trailing))
         .animation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0))
-        .buttonStyle(MainButtonStyle())
+        
     }
 
     

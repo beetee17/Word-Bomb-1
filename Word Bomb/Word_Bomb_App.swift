@@ -6,10 +6,14 @@
 //
 
 import SwiftUI
+import MultipeerKit
+import MultipeerConnectivity
 
 let CountryGame = GameMode(modeName:"COUNTRY", dataFile: "countries", queryFile: nil, instruction: "NAME A COUNTRY", gameType: GameType.Exact, id: 1)
 
 let WordGame = GameMode(modeName: "WORDS", dataFile: "words", queryFile: "syllables", instruction: nil, gameType: GameType.Contains, id: 2)
+
+
 
 @main
 struct Word_BombApp: App {
@@ -19,13 +23,18 @@ struct Word_BombApp: App {
     // implement GameData struct, it includes String vars for words txt filename, query txt filename, user instruction (if any)
     
     let persistenceController = PersistenceController.shared
-    let game = WordBombGameViewModel(wordGames: [CountryGame, WordGame])
-
+    let game = WordBombGameViewModel([CountryGame, WordGame])
+    
+    let mpcDataSource = MultipeerDataSource(transceiver: Multipeer.transceiver)
+    
     var body: some Scene {
+        
         WindowGroup {
             ContentView()
                 .environmentObject(game)
+                .environmentObject(mpcDataSource)
                 .environment(\.managedObjectContext, persistenceController.container.viewContext)
+            
         }
     }
 }

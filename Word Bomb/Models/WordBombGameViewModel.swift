@@ -7,6 +7,7 @@
 
 import Foundation
 import MultipeerConnectivity
+import MultipeerKit
 
 class WordBombGameViewModel: NSObject, ObservableObject {
     
@@ -17,25 +18,15 @@ class WordBombGameViewModel: NSObject, ObservableObject {
     @Published var mpcStatus: String?
     
     var wordGames: [GameMode]
-    
-    // multiplayer stuff
-    var peerId: MCPeerID
-    var session: MCSession
-    var nearbyServiceAdvertiser: MCNearbyServiceAdvertiser?
-    var serviceType:String = "word-bomb"
 
-    @Published var advertising = false
     @Published var showHostingAlert = false
+    
 
-    init(wordGames: [GameMode]) {
+    init(_ wordGames: [GameMode]) {
         self.wordGames = wordGames
-        peerId = MCPeerID(displayName: UIDevice.current.name)
-        session = MCSession(peer: peerId, securityIdentity: nil, encryptionPreference: .required)
-        super.init()
-        session.delegate = self
-       
     }
-
+    
+    
     func changeViewToShow(_ view: ViewToShow) {
         model.viewToShow = view
     }
@@ -66,8 +57,8 @@ class WordBombGameViewModel: NSObject, ObservableObject {
             
         case .Contains:
             gameModel = ContainsWordGameModel(data: data["data"]!, queries: data["queries"]!)
-            if isMultiplayer(self) {
-                if deviceIsHost(self) {
+            if isMultiplayer() {
+                if deviceIsHost() {
                     model.query = gameModel!.getRandQuery()
                 }
             } else {
@@ -90,23 +81,21 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
         
         if !(input == "" || model.timeLeft! <= 0) {
-            
-            if isMultiplayer(self) {
-                if peerId.displayName == model.currentPlayer.name && deviceIsHost(self) {
-                    
+
+            if isMultiplayer() {
+                if MCPeerID.defaultDisplayName == model.currentPlayer.name && deviceIsHost() {
+
                     let answer = gameModel!.process(input, model.query)
                     model.process(input, answer)
                     if .isCorrect == answer {
                         model.query = gameModel!.getRandQuery()
                     }
                 }
-                
-                else if peerId.displayName == model.currentPlayer.name && !deviceIsHost(self) {
-                    if let inputData = try? JSONEncoder().encode(["input" : input]) {
-                        
-                        try? session.send(inputData, toPeers: session.connectedPeers, with: .reliable)
-                        print("SENT \(input)")
-                    }
+
+                else if MCPeerID.defaultDisplayName == model.currentPlayer.name && !deviceIsHost() {
+                    Multipeer.transceiver.broadcast(input)
+                    print("SENT \(input)")
+                    
                 }
             }
             else {
@@ -148,8 +137,9 @@ class WordBombGameViewModel: NSObject, ObservableObject {
                 
                 DispatchQueue.main.async {
                     self.model.timeLeft! = max(0, self.model.timeLeft! - 0.1)
-                    if isMultiplayer(self) && deviceIsHost(self) {
-                        self.sendModel()
+                    if self.isMultiplayer() && self.deviceIsHost() {
+                        print("sending model")
+                        Multipeer.transceiver.broadcast(self.model)
                     }
                 }
             }
@@ -165,6 +155,18 @@ class WordBombGameViewModel: NSObject, ObservableObject {
     
     
     // MARK: - Multipeer Functionality
+    func setUpTransceiver() {
+        print("Setting up transceiver")
+        Multipeer.transceiver.receive(WordBombGame.self) { payload, sender in
+            print("Got model from \(sender.name)! \(payload)")
+            self.model = payload
+        }
+        Multipeer.transceiver.receive(String.self) { payload, sender in
+            print("Got input from \(sender.name)! \(payload)")
+            self.input = payload
+            self.processPeerInput()
+        }
+    }
     
     func processPeerInput() {
         input = input.lowercased().trimmingCharacters(in: .whitespacesAndNewlines)
@@ -177,47 +179,51 @@ class WordBombGameViewModel: NSObject, ObservableObject {
         resetInput()
     }
     
-    func setPlayers(_ peers: [MCPeerID]) {
-        var players: [Player] = [Player(name: peerId.displayName, ID: 0)]
-        for i in peers.indices {
-            let player = Player(name: peers[i].displayName, ID: i+1)
-            players.append(player)
-            print(player.name)
+    func isMultiplayer() -> Bool {
+        var connectedPeers: [Peer] = []
+        for peer in Multipeer.transceiver.availablePeers {
+            if peer.isConnected { connectedPeers.append(peer) }
+        }
+        print("multiplayer \(connectedPeers.count > 0)")
+        return connectedPeers.count > 0
+    }
+
+    func deviceIsHost() -> Bool {
+        var connectedPeers: [Peer] = []
+        for peer in Multipeer.transceiver.availablePeers {
+            if peer.isConnected { connectedPeers.append(peer) }
         }
         
-        model.setPlayers(players)
+        if connectedPeers.count == 0 { return false }
         
-    }
-    
-    func sendModel() {
-        if let modelData = try? JSONEncoder().encode(model) {
-            
-            try? session.send(modelData, toPeers: session.connectedPeers, with: .reliable)
-            
+        for peer in connectedPeers {
+            print(peer.name)
+            if peer.name  < MCPeerID.defaultDisplayName {
+                print("Not host")
+                return false
+            }
         }
+        print("am host")
+        return true
     }
     
-    func setModel(_ model: WordBombGame) {
-        self.model = model
+
+    func setPlayers() {
+        
+        if deviceIsHost() {
+            var players: [Player] = [Player(name: MCPeerID.defaultDisplayName, ID: 0)]
+            
+            for i in Multipeer.transceiver.availablePeers.indices {
+                let player = Player(name: Multipeer.transceiver.availablePeers[i].name, ID: i+1)
+                players.append(player)
+            }
+            print("players set \(players)")
+            model.setPlayers(players)
+        }
+
     }
+
     
-    func advertise() {
-        nearbyServiceAdvertiser = MCNearbyServiceAdvertiser(peer: peerId, discoveryInfo: nil, serviceType: serviceType)
-        nearbyServiceAdvertiser?.delegate = self
-        nearbyServiceAdvertiser?.startAdvertisingPeer()
-        advertising = true
-    }
-    
-    func invite() {
-        let browser = MCBrowserViewController(serviceType: serviceType, session: session)
-        browser.delegate = self
-        UIApplication.shared.windows.first?.rootViewController?.present(browser, animated: true)
-    }
-    
-    func disconnect() {
-        session.disconnect()
-        mpcStatus = nil
-    }
     
     // to allow contentView to read model's value and update
     var currentPlayer: String { model.currentPlayer.name }
@@ -233,6 +239,8 @@ class WordBombGameViewModel: NSObject, ObservableObject {
     var viewToShow: ViewToShow { model.viewToShow }
     
     var output: String { model.output }
+
+    
         
 }
 

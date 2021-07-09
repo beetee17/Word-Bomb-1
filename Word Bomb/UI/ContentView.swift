@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import MultipeerKit
 
 #if canImport(UIKit)
 // To force SwiftUI to hide keyboard
@@ -19,14 +20,21 @@ extension View {
 
 struct ContentView: View {
     @EnvironmentObject var viewModel: WordBombGameViewModel
+    @EnvironmentObject var mpcDataSource: MultipeerDataSource
     
     var body: some View {
         ZStack {
-            MPCText().environmentObject(viewModel)
+            MPCText()
             
-            GameView().environmentObject(viewModel)
+            GameView()
             
         }
+        .onAppear() {
+            Multipeer.transceiver.resume()
+            viewModel.setUpTransceiver()
+        }
+        .environmentObject(viewModel)
+        .environmentObject(mpcDataSource)
     }
 }
 

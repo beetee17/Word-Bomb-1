@@ -22,7 +22,7 @@ struct ModeSelectView: View {
                     ModeSelectButton(gameMode: mode)
                 }
                 
-                Button("Custom...") {
+                Button("CUSTOM...") {
                     print("Custom")
                     withAnimation { viewModel.changeViewToShow(.customMode) }
                 }

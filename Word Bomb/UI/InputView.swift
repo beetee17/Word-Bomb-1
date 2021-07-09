@@ -13,6 +13,7 @@ struct InputView: View {
     // Presented when game is ongoing for user to see query and input an answer
     
     @EnvironmentObject var viewModel: WordBombGameViewModel
+    @State var commitInput = false
     
     var instructionText: some View {
         viewModel.instruction.map { Text($0).boldText() }
@@ -27,16 +28,13 @@ struct InputView: View {
             
             instructionText
             queryText
-            
-            TextField("", text: $viewModel.input, onEditingChanged: { (changed) in })
-                {
-                    print("User Committed Input")
-                    viewModel.processInput()
-                    viewModel.resetInput()
-                }
-                .textFieldStyle(RoundedBorderTextFieldStyle())
-                .padding(.horizontal, 20)
-            
+            PermanentKeyboard(text: $viewModel.input)
+            Text(viewModel.input).onChange(of: viewModel.input, perform: { _ in if viewModel.input.last == "\n" {
+                viewModel.processInput()
+                viewModel.resetInput()
+            }})
+            .frame(width: UIScreen.main.bounds.width-40, height: 30, alignment: .center)
+            .overlay(RoundedRectangle(cornerRadius: 5).stroke(Color.gray, lineWidth: 0.75))
         }
         .padding(.bottom, 50)
         .ignoresSafeArea(.all)

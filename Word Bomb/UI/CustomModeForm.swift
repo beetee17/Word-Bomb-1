@@ -52,7 +52,6 @@ struct CustomModeForm: View {
                 newItem.instruction = instruction
                 addItem(newItem)
             }
-            .buttonStyle(MainButtonStyle())
         }
     }
     

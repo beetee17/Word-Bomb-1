@@ -6,6 +6,7 @@
 //
 
 import Foundation
+import MultipeerConnectivity
 
 struct GameMode: Identifiable {
     var modeName: String
@@ -27,7 +28,7 @@ enum Answer  {
 }
 
 enum ViewToShow: Int, Codable {
-    case main, modeSelect, customMode, createMode, game, gameOver, pauseMenu, multipeer
+    case main, modeSelect, customMode, game, gameOver, pauseMenu, multipeer, peersView
 }
 
 
@@ -93,6 +94,25 @@ func loadData(_ mode: GameMode) -> (data: [String: [String]], wordSets: [String:
     }
     
     return (data, wordSets)
+}
+
+func modifyHostPeerId(_ peerId: MCPeerID ) -> MCPeerID {
+    if peerId.displayName.first != "$" {
+         return MCPeerID(displayName: "$" + peerId.displayName)
+    }
+    else { return peerId }
+}
+
+
+func displayHostPeerId(_ peerId: MCPeerID) -> String {
+    if peerId.displayName.first != "$" {
+        return peerId.displayName
+    }
+    else {
+        var displayName = peerId.displayName
+        displayName.removeFirst()
+        return displayName
+    }
 }
 
 // for custom modes using core data

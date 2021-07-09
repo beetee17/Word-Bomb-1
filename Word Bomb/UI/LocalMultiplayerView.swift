@@ -6,30 +6,32 @@
 //
 
 import SwiftUI
-
+import MultipeerKit
 struct LocalMultiplayerView: View {
     
     @EnvironmentObject var viewModel: WordBombGameViewModel
-    
+    @State private var presentPeersSheet = false
     var body: some View {
+        // Start it up!
+        
         ZStack {
             Color.clear
             
+            
             VStack(spacing: 50) {
-                    
-                Button("Join Game") {
-                    print("Join Game")
-                    withAnimation { viewModel.advertise() }
-                }
                
                 
                 Button("Host Game") {
                     print("Host Game")
-                    withAnimation { viewModel.invite() }
+                    withAnimation { presentPeersSheet = true }
                 }
                 Button("Disconnect") {
                     print("Disconnect")
-                    withAnimation { viewModel.disconnect() }
+                    withAnimation { Multipeer.transceiver.stop() }
+                }
+                Button("Reconnect") {
+                    print("Reconnect")
+                    withAnimation { Multipeer.transceiver.resume() }
                 }
                 
                 Button("Back") {
@@ -44,6 +46,7 @@ struct LocalMultiplayerView: View {
         .transition(.asymmetric(insertion: AnyTransition.move(edge: .trailing), removal: AnyTransition.move(edge: .leading)))
         .animation(.spring(response: 0.3, dampingFraction: 0.5, blendDuration: 0))
         .zIndex(/*@START_MENU_TOKEN@*/1.0/*@END_MENU_TOKEN@*/) // transition does not work with zIndex set to 0
+        .sheet(isPresented: $presentPeersSheet) { LocalPeersView() }
     }
 }
 

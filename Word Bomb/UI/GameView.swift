@@ -20,6 +20,7 @@ struct GameView: View {
             case .pauseMenu: PauseMenuView()
             case .multipeer: LocalMultiplayerView()
             case .customMode: CustomModeView()
+            case .peersView: LocalPeersView()
                 
             default: // game or gameOver 
                 ZStack{
